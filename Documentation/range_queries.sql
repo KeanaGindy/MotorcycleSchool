@@ -29,13 +29,12 @@ FROM range_location;
 
 /* =====================================================================*/
 /*
-VIEW RANGE REPORT:
-UX will present option to view a range's report of all ranges available on a given day / session.
+VIEW NUMBER OF SEATS LEFT FOR RANGES:
+UX will present option to view a report of all ranges on a given day and the remaining seats available.
 UX will ask for the date of course.
-We will display all available ranges for that day /session for the report with this query:
+We will display all ranges for that day and number of open seats reamining with this query:
 
 Parameter 1: course_date:DATE
-Parameter 2: in_session: ENUM(AM, PM, BOTH)
 
 Example with hardcoded values:
 SELECT range_location.range_id, range_location.range_type, uses.in_session,
@@ -44,7 +43,7 @@ SELECT range_location.range_id, range_location.range_type, uses.in_session,
      FROM enrolled_in
      JOIN course ON enrolled_in.course_id = course.course_id
      JOIN uses ON course.course_id = uses.course_id
-     WHERE uses.range_id = range_location.range_id AND course.course_date = '2023-1-30')) AS availability
+     WHERE NOT IN uses.range_id = range_location.range_id AND course.course_date = '2023-1-30')) AS availability
 FROM range_location
 JOIN uses ON range_location.range_id = uses.range_id;
 */
@@ -58,6 +57,36 @@ SELECT range_location.range_id, range_location.range_type, uses.in_session,
      WHERE uses.range_id = range_location.range_id AND course.course_date = '????-?-??')) AS availability
 FROM range_location
 JOIN uses ON range_location.range_id = uses.range_id;
+
+
+/* =====================================================================*/
+/*
+VIEW RANGE REPORT - AVAILABLE RANGES ON A GIVEN DAY:
+UX will present option to view a range's report of all ranges available on a given day.
+UX will ask for the date of course.
+We are only doing by day and not by session b/c you need to account for range cleanup so we do not want to 
+double book a range.
+We will display all available ranges for that day for the report with this query:
+
+Parameter 1: course_date:DATE
+
+Example with hardcoded values:
+SELECT range_location.range_id, range_location.range_type, uses.in_session
+FROM range_location
+  LEFT JOIN uses ON range_location.range_id = uses.range_id
+  LEFT JOIN course ON uses.course_id = course.course_id
+WHERE range_location.range_id NOT IN (
+  SELECT range_id FROM uses WHERE course_id IN (
+    SELECT course_id FROM course WHERE course_date = '2023-01-30'));
+*/
+
+SELECT range_location.range_id, range_location.range_type, uses.in_session
+FROM range_location
+LEFT JOIN uses ON range_location.range_id = uses.range_id
+LEFT JOIN course ON uses.course_id = course.course_id
+WHERE range_location.range_id NOT IN (
+SELECT range_id FROM uses WHERE course_id IN (
+SELECT course_id FROM course WHERE course_date ='????-?-??'));
 
 /* =====================================================================*/
 
