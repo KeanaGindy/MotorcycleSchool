@@ -38,6 +38,8 @@ VIEW AVAILABLE INSTRUCTORS:
 UX will present option to view instructors available based on a certain day.
 We will display instructor's id, name, and qualifications data with this query:
 
+Parameter 1: course_date DATE
+
 Example with hardcoded values: 
 SELECT instructor_id, instructor_name, coach_dirt_bike, coach_street_bike, teach_street_bike
 FROM instructor
@@ -68,6 +70,7 @@ WHERE course_date = ?
 VIEW INSTRUCTOR SCHEDULE:
 UX will present option to view an instructor's schedule based on their instuctor_id.
 
+Parameter 1: course_date DATE
 
 Example with hardcoded values: 
 SELECT 
