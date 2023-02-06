@@ -9,7 +9,6 @@ Parameter 1: classroom_id: CHAR
 Parameter 2: max_capacity: INT
 
 
-
 Example with hardcoded values: 
 INSERT INTO classroom_location VALUES ('C', 25),('D', 40);
 */
@@ -29,9 +28,39 @@ FROM class_location;
 
 /* =====================================================================*/
 /*
+VIEW CLASSROOM Seat Avaibility:
+UX will present option to view a specific classroom's report and ask for the date of course.
+ We will display all of the classroom's data for the report with this query:
+
+Parameter 1: course_date:DATE
+
+Example with hardcoded values:
+SELECT t.classroom_id, c.course_id, c.course_name, c.course_date,  c.course_type, 
+       t.in_session,
+       (cl.max_capacity - (SELECT COUNT(*) 
+                           FROM enrolled_in e 
+                           WHERE e.course_id = t.course_id)) as availability 
+FROM taught_in t 
+JOIN course c ON t.course_id = c.course_id 
+JOIN classroom_location cl ON t.classroom_id = cl.classroom_id 
+WHERE c.course_date = '2023-01-29';
+*/
+
+SELECT t.classroom_id, c.course_id, c.course_name, c.course_date,  c.course_type, 
+       t.in_session,
+       (cl.max_capacity - (SELECT COUNT(*) 
+                           FROM enrolled_in e 
+                           WHERE e.course_id = t.course_id)) as availability 
+FROM taught_in t 
+JOIN course c ON t.course_id = c.course_id 
+JOIN classroom_location cl ON t.classroom_id = cl.classroom_id 
+WHERE c.course_date = '????-??-??';
+
+/* =====================================================================*/
+/*
 VIEW CLASSROOM Avaibility:
-UX will present option to view classroom availabilities and ask for the date of course.
-We will display what sessions are available for a classroom with this query:
+UX will present option to view a specific classroom's report and ask for the date of course.
+ We will display all of the classroom's data for the report with this query:
 
 Parameter 1: course_date:DATE
 
@@ -68,7 +97,6 @@ GROUP BY taught_in.classroom_id
 ) sub_query
 ON classroom_location.classroom_id = sub_query.classroom_id
 LIMIT 0, 500
-
 */
 
 SELECT classroom_location.classroom_id,
@@ -104,15 +132,15 @@ GROUP BY taught_in.classroom_id
 ON classroom_location.classroom_id = sub_query.classroom_id
 LIMIT 0, 500
 
-
 /* =====================================================================*/
 /*
 EDIT CLASSROOM MAX CAPACITY:
-UX will present option to edit a classroom's data and ask for classroom id and new value.
+UX will present option to edit a classroom's data and ask for classroom id and new value for max capacity.
 We will update the desired field of the desired classroom with this query so 
 it contains the new value:
 
 Parameter 1: max_capacity: INT
+Parameter 2: : classroom_id: CHAR
 
 Hardcoded exmaple:
 UPDATE classroom_location
@@ -133,7 +161,7 @@ UX will present option to delete a classroom and ask for classroom id of the cla
  We will delete the desired classroom and all of their associated data with this query:
 
 
-Parameter 1: classroom_id: INT
+Parameter 1: classroom_id: CHAR
 
 Example with hardcoded values: 
 DELETE FROM classroom_location
