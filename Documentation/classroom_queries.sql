@@ -65,27 +65,73 @@ UX will present option to view a specific classroom's report and ask for the dat
 Parameter 1: course_date:DATE
 
 Example with hardcoded values:
-SELECT classroom_location.classroom_id, course.course_id, course.course_name, course.course_date,
-if (taught_in.in_session = 'PM', 'AM','PM') as available
-FROM classroom_location, taught_in, course, student, enrolled_in, uses, range_location
-WHERE classroom_location.classroom_id = taught_in.classroom_id
-AND taught_in.course_id = course.course_id
-AND course.course_id = enrolled_in.course_id
-AND student.student_id = enrolled_in.student_id
-AND course.course_id = uses.course_id
-AND uses.range_id = range_location.range_id
-AND course.course_date = '2023-01-31';
+SELECT classroom_location.classroom_id,
+CASE
+WHEN sub_query.session_count = 1 THEN
+(SELECT CASE in_session
+WHEN 'AM' THEN 'PM'
+WHEN 'PM' THEN 'AM'
+ELSE 'NONE'
+END
+FROM taught_in
+WHERE taught_in.classroom_id = classroom_location.classroom_id
+AND taught_in.course_id IN (
+SELECT course.course_id
+FROM course
+WHERE course.course_date = '2023-01-31'
+)
+LIMIT 1
+)
+WHEN sub_query.session_count = 2 THEN 'NONE'
+ELSE 'AM & PM'
+END as session_available
+FROM classroom_location
+LEFT JOIN (
+SELECT taught_in.classroom_id,
+COUNT(taught_in.in_session) as session_count
+FROM taught_in
+JOIN course
+ON taught_in.course_id = course.course_id
+AND course.course_date = '2023-01-31'
+GROUP BY taught_in.classroom_id
+) sub_query
+ON classroom_location.classroom_id = sub_query.classroom_id
+LIMIT 0, 500
 */
-SELECT classroom_location.classroom_id, course.course_id, course.course_name, course.course_date,
-if (taught_in.in_session = 'PM', 'AM','PM') as available
-FROM classroom_location, taught_in, course, student, enrolled_in, uses, range_location
-WHERE classroom_location.classroom_id = taught_in.classroom_id
-AND taught_in.course_id = course.course_id
-AND course.course_id = enrolled_in.course_id
-AND student.student_id = enrolled_in.student_id
-AND course.course_id = uses.course_id
-AND uses.range_id = range_location.range_id
-AND course.course_date = '????-??-??';
+
+SELECT classroom_location.classroom_id,
+CASE
+WHEN sub_query.session_count = 1 THEN
+(SELECT CASE in_session
+WHEN 'AM' THEN 'PM'
+WHEN 'PM' THEN 'AM'
+ELSE 'NONE'
+END
+FROM taught_in
+WHERE taught_in.classroom_id = classroom_location.classroom_id
+AND taught_in.course_id IN (
+SELECT course.course_id
+FROM course
+WHERE course.course_date = '????-??-??'
+)
+LIMIT 1
+)
+WHEN sub_query.session_count = 2 THEN 'NONE'
+ELSE 'AM & PM'
+END as session_available
+FROM classroom_location
+LEFT JOIN (
+SELECT taught_in.classroom_id,
+COUNT(taught_in.in_session) as session_count
+FROM taught_in
+JOIN course
+ON taught_in.course_id = course.course_id
+AND course.course_date = '????-??-??'
+GROUP BY taught_in.classroom_id
+) sub_query
+ON classroom_location.classroom_id = sub_query.classroom_id
+LIMIT 0, 500
+
 /* =====================================================================*/
 /*
 EDIT CLASSROOM MAX CAPACITY:
