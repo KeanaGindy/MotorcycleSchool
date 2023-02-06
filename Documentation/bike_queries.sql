@@ -3,7 +3,7 @@
 /*
 CREATE NEW BIKE:
 UX will present option to create a new bike and ask for bike parameter values.
- We will add the new bike with the data into the database with this query:
+We will add the new bike with the data into the database with this query:
 
 Parameter 1: vin VARCHAR(250)
 Parameter 2: license_plate VARCHAR(250)
@@ -17,6 +17,17 @@ INSERT INTO bike VALUES('SDE123SDA', '1234-ABC', 0, 'Mistubishi', 'street', 250)
 */
 
 INSERT INTO bike VALUES(?, ?, ?, ?, ?, ?);
+
+/*
+CREATE NEW REPAIR BIKE ENTRY:
+UX will present option to create a new repair bike entry and ask for repair bike parameter values.
+We will add new repair bike entry with into the database with this query:
+
+Example with hardcoded values:
+INSERT INTO repair_bike VALUES('A7B6SDN9DD7H372J8','2023-02-01', 800, NULL, 'needs new wheels');
+*/
+
+INSERT INTO repair_bike VALUES(?, ?, ?, ?, ?);
 
 /* =====================================================================*/
 /*
@@ -45,7 +56,7 @@ SELECT vin, bike_type FROM bike
 WHERE vin NOT IN (
 SELECT vin FROM assigned_to 
 WHERE course_id IN (
-SELECT course_id FROM course WHERE = '2023-01-31'));
+SELECT course_id FROM course WHERE course.course_date = '2023-01-31'));
 
 */
 
@@ -53,7 +64,7 @@ SELECT vin, bike_type FROM bike
 WHERE vin NOT IN (
 SELECT vin FROM assigned_to 
 WHERE course_id IN (
-SELECT course_id FROM course WHERE = ?));
+SELECT course_id FROM course WHERE course.course_date = ?));
 
 /*
 VIEW BIKES IN REPAIR:
