@@ -3,7 +3,7 @@
 /*
 CREATE NEW BIKE:
 UX will present option to create a new bike and ask for bike parameter values.
- We will add the new bike with the data into the database with this query:
+We will add the new bike with the data into the database with this query:
 
 Parameter 1: vin VARCHAR(250)
 Parameter 2: license_plate VARCHAR(250)
@@ -18,11 +18,30 @@ INSERT INTO bike VALUES('SDE123SDA', '1234-ABC', 0, 'Mistubishi', 'street', 250)
 
 INSERT INTO bike VALUES(?, ?, ?, ?, ?, ?);
 
+/*
+CREATE NEW REPAIR BIKE ENTRY:
+UX will present option to create a new repair bike entry and ask for repair bike parameter values.
+We will add new repair bike entry with into the database with this query:
+
+Parameter 1: vin VARCHAR(250) NOT NULL
+Parameter 2: problem_date DATE
+Parameter 3: repair_cost INT
+Parameter 4: repair_date DATE
+Parameter 5: problem_description VARCHAR(500)
+
+Example with hardcoded values:
+INSERT INTO repair_bike VALUES('A7B6SDN9DD7H372J8','2023-02-01', 800, NULL, 'needs new wheels');
+*/
+
+INSERT INTO repair_bike VALUES(?, ?, ?, ?, ?);
+
 /* =====================================================================*/
 /*
 VIEW BIKES BASED ON BIKE TYPE:
 UX will present option to view bike.
 We will display all bike with the data with this query:
+
+Parameter 1: bike_type ENUM('dirt', 'street')
 
 Example with hardcoded values: 
 SELECT * FROM bike
@@ -40,12 +59,14 @@ VIEW BIKE AVAILABILITY:
 UX will present option to view bikes available based on a certain.
 We will display bike's vin and bike type with the query:
 
+Parameter 1: course_date DATE NOT NULL
+
 Example with hardcorded values:
 SELECT vin, bike_type FROM bike
 WHERE vin NOT IN (
 SELECT vin FROM assigned_to 
 WHERE course_id IN (
-SELECT course_id FROM course WHERE = '2023-01-31'));
+SELECT course_id FROM course WHERE course.course_date = '2023-01-31'));
 
 */
 
@@ -53,10 +74,11 @@ SELECT vin, bike_type FROM bike
 WHERE vin NOT IN (
 SELECT vin FROM assigned_to 
 WHERE course_id IN (
-SELECT course_id FROM course WHERE = ?));
+SELECT course_id FROM course WHERE course.course_date = ?));
 
+/* =====================================================================*/
 /*
-VIEW BIKES IN REPAIR:
+VIEW ALL BIKES IN REPAIR:
 UX will present option to view a list of bikes in repair.
 We will display bike's vin, bike type, problem date, and problem description with the query:
 
@@ -67,10 +89,13 @@ INNER JOIN bike ON bike.vin = repair_bike.vin;
 
 */
 
+/* =====================================================================*/
 /*
 VIEW BIKE HISTORY:
 UX will present option to view a bike's current history.
 We will display the bike's vin, bike type, repair status, problem date, problem description, repair date, course id and course date attached to the bike with the query:
+
+Parameter 1: vin VARCHAR(250)
 
 Example with hardcoded values:
 SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date 
