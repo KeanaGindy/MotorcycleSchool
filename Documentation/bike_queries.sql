@@ -29,13 +29,69 @@ SELECT * FROM bike
 WHERE bike_type = 'dirt';
 
 SELECT * FROM bike
-WHERE bike_type = ‘street’;
-
+WHERE bike_type = 'street';
 */
 
 SELECT * FROM bike
 WHERE bike_type = ?;
 
+/*
+VIEW BIKE AVAILABILITY:
+UX will present option to view bikes available based on a certain.
+We will display bike's vin and bike type with the query:
+
+Example with hardcorded values:
+SELECT vin, bike_type FROM bike
+WHERE vin NOT IN (
+SELECT vin FROM assigned_to 
+WHERE course_id IN (
+SELECT course_id FROM course WHERE = '2023-01-31'));
+
+*/
+
+SELECT vin, bike_type FROM bike
+WHERE vin NOT IN (
+SELECT vin FROM assigned_to 
+WHERE course_id IN (
+SELECT course_id FROM course WHERE = ?));
+
+/*
+VIEW BIKES IN REPAIR:
+UX will present option to view a list of bikes in repair.
+We will display bike's vin, bike type, problem date, and problem description with the query:
+
+Example with hardcoded values:
+SELECT bike.vin, bike.bike_type, repair_bike.problem_date, repair_bike.problem_description 
+FROM repair_bike
+INNER JOIN bike ON bike.vin = repair_bike.vin;
+
+*/
+
+/*
+VIEW BIKE HISTORY:
+UX will present option to view a bike's current history.
+We will display the bike's vin, bike type, repair status, problem date, problem description, repair date, course id and course date attached to the bike with the query:
+
+Example with hardcoded values:
+SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date 
+FROM bike 
+LEFT JOIN repair_bike ON bike.vin = repair_bike.vin 
+LEFT JOIN assigned_to ON bike.vin = assigned_to.vin
+LEFT JOIN course ON assigned_to.course_id = course.course_id
+WHERE bike.vin = '1GHS8363429D49K2B';
+LIMIT 0, 500;
+
+SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date 
+FROM bike 
+LEFT JOIN repair_bike ON bike.vin = repair_bike.vin 
+LEFT JOIN assigned_to ON bike.vin = assigned_to.vin
+LEFT JOIN course ON assigned_to.course_id = course.course_id
+WHERE bike.vin = ?;
+LIMIT 0, 500;
+
+*/
+
+SELECT 
 /* =====================================================================*/
 /*
 EDIT BIKE LICENSE PLATE:
