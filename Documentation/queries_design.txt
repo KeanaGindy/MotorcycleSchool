@@ -1,0 +1,1277 @@
+/*
+TEAM 3 - Deliverable 3 Design of Queries
+Na lee
+Batbold Altansukh
+Keana Gindy
+Giovanna Stern
+*/
+
+/* SQL QUERIES FOR STUDENT */
+/* =====================================================================*/
+/*
+CREATE NEW STUDENT:
+UX will present option to create a new student and ask for student parameter values.
+ We will add the new student with the data into the database with this query:
+
+Parameter 1: student_id: INT
+Parameter 2: student_name: VARCHAR(250)
+Parameter 3: dob: DATE
+Parameter 4: address: VARCHAR(250)
+Parameter 5: phone: VARCHAR(15)
+
+Example with hardcoded values: 
+INSERT INTO student VALUES (83738938, 'Gio', '1995-01-01', '555 Street State ZIP', '5555555555');
+
+*/
+
+INSERT INTO student VALUES (?, ?, ?, ?, ?);
+
+/* =====================================================================*/
+/*
+VIEW ALL STUDENTS:
+UX will present option to view students.
+We will display all students with the data with this query:
+
+*/
+
+SELECT *
+FROM student;
+
+/* =====================================================================*/
+/*
+VIEW STUDENT REPORT:
+UX will present option to view a specific student's report and ask for the id of the desired student.
+ We will display all of the student's data for the report with this query:
+
+Parameter 1: student_id: INT
+
+Example with hardcoded values:
+SELECT *
+FROM enrolled_in 
+WHERE student_id = 7
+ORDER BY course_id;
+*/
+
+SELECT *
+FROM enrolled_in 
+WHERE student_id = ?
+ORDER BY course_id;
+
+/* =====================================================================*/
+
+/*
+EDIT STUDENT NAME:
+UX will present option to edit a student's data and ask for student id and new value.
+We will update the desired field of the desired student with this query so 
+it contains the new value:
+
+Parameter 1: student_id: INT
+Parameter 2: student_name: VARCHAR(250)
+
+harded example:
+UPDATE student
+SET student_name = 'Sam Taco'
+WHERE student_id = 7;
+
+*/
+
+UPDATE student
+SET student_name = ?
+WHERE student_id = ?;
+
+/* =====================================================================*/
+
+/*
+EDIT STUDENT ADDRESS:
+UX will present option to edit a student's data and ask for student id and new value.
+We will update the desired field of the desired student with this query so 
+it contains the new value:
+
+Parameter 1: student_id: INT
+Parameter 2: address: VARCHAR(250)
+
+Hardcoded exmaple:
+UPDATE student
+SET address = '444 Pizza Drive State Zip'
+WHERE student_id = 7;
+
+*/
+
+UPDATE student
+SET address = ?
+WHERE student_id = student_id;
+
+/* =====================================================================*/
+
+/*
+EDIT STUDENT phone:
+UX will present option to edit a student's data and ask for student id and new value.
+We will update the desired field of the desired student with this query so 
+it contains the new value:
+
+Parameter 1: student_id: INT
+Parameter 2: phone: VARCHAR(15)
+
+Hardcoded example:
+UPDATE student
+SET phone = 5555555566
+WHERE student_id = 7;
+
+*/
+
+UPDATE student
+SET phone = ?
+WHERE student_id = student_id;
+
+/* =====================================================================*/
+
+/*
+REMOVE STUDENT:
+UX will present option to delete a new student and ask for student id of the student the user wishes to delete from the system.
+ We will delete the desired student and all of their associated data with this query:
+
+
+Parameter 1: student_id: INT
+
+Example with hardcoded values: 
+DELETE FROM student
+WHERE student_id =  1;
+
+*/
+
+DELETE FROM student
+WHERE student_id = ?;
+
+
+/* SQL QUERIES FOR INSTRUCTOR */
+/* =====================================================================*/
+/*
+CREATE NEW INSTRUCTOR:
+UX will present option to create a new instuctor and ask for instuctor parameter values.
+ We will add the new instuctor with the data into the database with this query:
+
+Parameter 1: instructor_id INT
+Parameter 2: instructor_name VARCHAR(250)
+Parameter 3: dob DATE
+Parameter 4: address VARCHAR(250)
+Parameter 5: phone VARCHAR(15)
+Parameter 6: coach_dirt_bike BOOL
+Parameter 7: coach_street_bike BOOL
+Parameter 8: teach_street_bi
+
+Example with hardcoded values: 
+INSERT INTO instructor VALUE (7, 'Lil Kim', '1988-03-22', '523 CandyCane Lane',  9031234567, true, false, true)
+
+*/
+
+INSERT INTO instructor VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+/* =====================================================================*/
+/*
+VIEW ALL INSTRUCTOR:
+UX will present option to view instructors.
+We will display all instructors with the data with this query:
+
+*/
+
+SELECT *
+FROM instructor;
+
+/* =====================================================================*/
+/*
+VIEW AVAILABLE INSTRUCTORS:
+UX will present option to view instructors available based on a certain day.
+We will display instructor's id, name, and qualifications data with this query:
+
+Parameter 1: course_date DATE
+
+Example with hardcoded values: 
+SELECT instructor_id, instructor_name, coach_dirt_bike, coach_street_bike, teach_street_bike
+FROM instructor
+WHERE instructor_id NOT IN (
+SELECT instructor_id
+FROM instructs
+WHERE course_id IN (
+SELECT course_id
+FROM course
+WHERE course_date = '2023-01-31'
+));
+
+*/
+
+SELECT instructor_id, instructor_name, coach_dirt_bike, coach_street_bike, teach_street_bike
+FROM instructor
+WHERE instructor_id IN (
+SELECT instructor_id
+FROM instructs
+WHERE course_id IN (
+SELECT course_id
+FROM course
+WHERE course_date = ?
+));
+
+/* =====================================================================*/
+/*
+VIEW INSTRUCTOR SCHEDULE:
+UX will present option to view an instructor's schedule based on their instuctor_id.
+
+Parameter 1: course_date DATE
+
+Example with hardcoded values: 
+SELECT 
+  i.instructor_id AS instructor_id, 
+  i.instructor_name AS instructor_name, 
+  c.course_id AS course_id, 
+  c.course_name AS course_name, 
+  c.course_type, 
+  c.course_date, 
+  s.in_session
+FROM instructor i
+JOIN instructs s ON i.instructor_id = s.instructor_id
+JOIN course c ON s.course_id = c.course_id
+WHERE i.instructor_id = 2;
+
+*/
+
+SELECT 
+  i.instructor_id AS instructor_id, 
+  i.instructor_name AS instructor_name, 
+  c.course_id AS course_id, 
+  c.course_name AS course_name, 
+  c.course_type, 
+  c.course_date, 
+  s.in_session
+FROM instructor i
+JOIN instructs s ON i.instructor_id = s.instructor_id
+JOIN course c ON s.course_id = c.course_id
+WHERE i.instructor_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT INSTRUCTOR NAME:
+UX will present option to edit a range's data and ask for range id and new value.
+We will update the desired field of the desired student with this query so
+it contains the new value:
+
+Parameter 1 instructor_id: INT
+Parameter 2 instructor_name VARCHAR(250)
+
+Hardcoded example:
+UPDATE instructor
+SET instructor_name = 'Sansa Stark'
+WHERE instructor_id = 1;
+*/
+
+UPDATE instructor
+SET instructor_name = ?
+WHERE instructor_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT INSTRUCTOR ADDRESS:
+UX will present option to edit a instructor's data and ask for instructor id and new value.
+We will update the desired field of the desired instructor with this query so 
+it contains the new value:
+
+Parameter 1: instructor_id INT
+Parameter 2: address VARCHAR(250)
+
+Hardcoded exmaple:
+UPDATE instructor
+SET address = '123 Hamburger Drive State Zip'
+WHERE instructor_id = 1;
+
+*/
+
+UPDATE instructor
+SET address = ?
+WHERE instructor_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT INSTRUCTOR phone:
+UX will present option to edit an instructor's data and ask for instructor id and new value.
+We will update the desired field of the desired instructor with this query so 
+it contains the new value:
+
+Parameter 1: instructor_id INT
+Parameter 2: phone VARCHAR(15)
+
+Hardcoded example:
+UPDATE instructor
+SET phone = 5555555566
+WHERE instructor_id = 1;
+
+*/
+
+UPDATE instructor
+SET phone = ?
+WHERE instructor_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT INSTRUCTOR coach_dirt_bike:
+UX will present option to edit an instructor's data and ask for instructor id and new value.
+We will update the desired field of the desired instructor with this query so 
+it contains the new value:
+
+Parameter 1: instructor_id INT
+Parameter 2: coach_dirt_bike BOOL
+
+Hardcoded example:
+UPDATE instructor
+SET coach_dirt_bike = FALSE
+WHERE instructor_id = 1;
+
+*/
+
+UPDATE instructor
+SET coach_dirt_bike = ?
+WHERE instructor_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT INSTRUCTOR coach_street_bike:
+UX will present option to edit an instructor's data and ask for instructor id and new value.
+We will update the desired field of the desired instructor with this query so 
+it contains the new value:
+
+Parameter 1: instructor_id INT
+Parameter 2: coach_street_bike BOOL
+
+Hardcoded example:
+UPDATE instructor
+SET coach_street_bike = TRUE
+WHERE instructor_id = 1;
+
+*/
+
+UPDATE instructor
+SET coach_street_bike = ?
+WHERE instructor_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT INSTRUCTOR teach_street_bike:
+UX will present option to edit an instructor's data and ask for instructor id and new value.
+We will update the desired field of the desired instructor with this query so 
+it contains the new value:
+
+Parameter 1: instructor_id INT
+Parameter 2: teach_street_bike BOOL
+
+Hardcoded example:
+UPDATE instructor
+SET teach_street_bike = FALSE
+WHERE instructor_id = 1;
+
+*/
+
+UPDATE instructor
+SET teach_street_bike = ?
+WHERE instructor_id = ?;
+
+/* =====================================================================*/
+/*
+REMOVE INSTRUCTOR:
+UX will present option to delete an instructor and ask for instructor id of the instructor the user wishes to delete from the system.
+ We will delete the desired instructor and all of their associated data with this query:
+
+Parameter 1: instructor_id: INT
+
+Example with hardcoded values: 
+DELETE FROM instructor
+WHERE instructor_id =  1;
+
+*/
+
+DELETE FROM instructor
+WHERE instructor_id = ?;
+
+/* SQL QUERIES FOR COURSE */
+/* =====================================================================*/
+/* 
+CREATE QUERIES FOR COURSE
+
+Hardcoded Queries Add Two Courses:
+Course 4 (Dirt Bike on 3/30/2023) Range 4 AM/PM
+Course 5 (Street Bike on 4/22/2023) Classroom B in AM and Range 2 in PM
+
+*/
+/* =====================================================================*/
+/*
+CREATE NEW COURSE:
+UX will present option to create a new course and ask for course parameter values.
+ We will add the new course with the data into the database with this query:
+
+Parameter 1: course_id: INT
+Parameter 2: course_name: VARCHAR(250)
+Parameter 3: course_description: VARCHAR(500)
+Parameter 4: course_date DATE
+Parameter 5: cost INT
+Parameter 6: course_type ENUM('dirt', 'street') 
+
+
+Example with hardcoded values: 
+INSERT INTO course VALUES (4, 'advanced dirt bike skills', 'advanced dirt class for experts', '2023-03-30', 250, 'dirt');
+INSERT INTO course VALUES (5, 'street bike care 101', 'learn how to take care of your street bike', '2023-04-22', 50, 'street');
+*/
+
+INSERT INTO course VALUES (?, ?, ?, ?, ?, ?);
+
+/* =====================================================================*/
+/*
+ADD INSTRUCTOR TO COURSE
+UX will present option to assign an instructor to a course and will ask for instructor id, course id, 
+session(s) that the instructor will teach, and their role.
+ We will add the instructor to the course with this query:
+
+Parameter 1: instructor_id: INT
+Parameter 2: course_id: INT
+Parameter 3: in_session: ENUM('AM', 'PM', 'BOTH')
+Parameter 4: instructor_role: ENUM('dirt_coach', 'street_coach', 'street_teacher', 'street_coach_teacher')
+
+
+Example with hardcoded values: 
+INSERT INTO instructs VALUES (2, 4, 'BOTH', 'dirt_coach');
+*/
+
+INSERT INTO instructs VALUES (?, ?, ?, ?);
+
+/* =====================================================================*/
+/*
+ADD STUDENT TO COURSE
+UX will present option to enroll a student in a course and will ask for both student and course id.
+We will also need to ask whether payment is complete, and scores of the exam.
+NOTE: Since scores cannot be null, they will be entered as -1 if exams not yet taken.
+
+We will enroll a student into a course with this query:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT 
+Parameter 3: is_payment_completed: BOOL
+Parameter 4: written_score: INT 
+Parameter 5: exercise_1_score: INT 
+Parameter 6: exercise_2_score: INT 
+Parameter 7: exercise_3_score: INT 
+Parameter 8: exercise_4_score: INT 
+Parameter 9: exercise_5_score: INT 
+
+
+Example with hardcoded values: 
+INSERT INTO enrolled_in VALUES (4, 1, FALSE, -1, -1, -1, -1, -1, -1);
+*/
+
+INSERT INTO enrolled_in VALUES (?,?,?,?,?,?,?,?,?);
+
+/* =====================================================================*/
+/*
+ASSIGN RANGE LOCATION FOR DIRT BIKE COURSE
+UX will present option to assign a range for a dirt bike course and automatically
+assign it to the only dirt bike range that exists (range 4) in both sessions since 
+dirt bikes are all day courses.
+
+Parameter 1: course_id: INT
+
+Example with hardcoded values: 
+INSERT INTO uses VALUES (4, 4, 'BOTH');
+*/
+
+INSERT INTO uses VALUES (?,4,'BOTH');
+
+/* =====================================================================*/
+/*
+ASSIGN RANGE LOCATION FOR STREET BIKE COURSE
+UX will present option to assign a street bike course to a specific range
+for a specific session.
+
+Parameter 1: course_id: INT
+Parameter 2: range_id: INT
+Parameter 3: in_session: ENUM('AM', 'PM', 'BOTH')
+
+Example with hardcoded values: 
+INSERT INTO uses VALUES (5,2,'PM');
+*/
+
+INSERT INTO uses VALUES (?,?,?);
+
+/* =====================================================================*/
+/*
+ASSIGN CLASSROOM LOCATION FOR STREET BIKE COURSE
+UX will present option to assign a street bike course to a specific classroom for a 
+specific session.
+
+Parameter 1: course_id: INT
+Parameter 2: classroom_id: CHAR
+Parameter 3: in_session: ENUM('AM', 'PM', 'BOTH')
+
+Example with hardcoded values: 
+INSERT INTO taught_in VALUES (5,B,'AM');
+*/
+
+INSERT INTO taught_in VALUES (?,?,?);
+
+/* =====================================================================*/
+
+/*
+VIEW ALL COURSE:
+UX will present option to view course.
+We will display all courses with the data with this query:
+
+SELECT c.course_id, i.instructor_id, s.student_id, t.classroom_id, u.range_id, t.in_session AS classroom_session, u.in_session AS range_session, c.course_date
+FROM course c 
+LEFT JOIN instructs i ON c.course_id = i.course_id
+LEFT JOIN enrolled_in s ON s.course_id = c.course_id 
+LEFT JOIN taught_in t ON t.course_id = s.course_id 
+LEFT JOIN uses u ON c.course_id = u.course_id;
+
+*/
+
+SELECT c.course_id, i.instructor_id, s.student_id, t.classroom_id, u.range_id, t.in_session AS classroom_session, u.in_session AS range_session, c.course_date
+FROM course c 
+LEFT JOIN instructs i ON c.course_id = i.course_id
+LEFT JOIN enrolled_in s ON s.course_id = c.course_id 
+LEFT JOIN taught_in t ON t.course_id = s.course_id 
+LEFT JOIN uses u ON c.course_id = u.course_id;
+
+/* EDIT QUERIES FOR COURSE */
+/* =====================================================================*/
+/*
+EDIT COURSE DATE:
+UX will present option to update an existing course date by prompting user for course_id and the new date.
+We will update the course date in the database with this query:
+
+Parameter 1: course_id: INT
+Parameter 2: course_date: DATE
+
+Example with hardcoded values: 
+UPDATE course
+SET course_date = '1980-05-22'
+WHERE course_id = 5;
+*/
+
+UPDATE course
+SET course_date = ?
+WHERE course_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT STUDENT PAYMENT RECORD FOR A COURSE :
+UX will present option to edit a student's data and ask for student id and new value.
+We will update the desired field of the desired student with this query so 
+it contains the new value:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT
+Parameter 3: is_payment_completed: BOOL
+
+Hardcoded example:
+UPDATE enrolled_in
+SET is_payment_completed = TRUE
+WHERE student_id = 1 AND course_id = 4;
+*/
+
+UPDATE enrolled_in
+SET is_payment_completed = ?
+WHERE student_id = ? AND course_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT STUDENT WRITTEN SCORE FOR A COURSE :
+UX will present option to edit a student's written score for a particular course and 
+and will ask for course id, student id and new score value.
+We will update the score for this student's course with this query so it contains the new value:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT
+Parameter 3: written_score: INT
+
+Hardcoded example:
+UPDATE enrolled_in
+SET written_score = 80
+WHERE student_id = 1 AND course_id = 4;
+*/
+
+UPDATE enrolled_in
+SET written_score = ?
+WHERE student_id = ? AND course_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT STUDENT EXERCISE 1 SCORE FOR A COURSE :
+UX will present option to edit a student's exercise 1 score for a particular course and 
+and will ask for course id, student id and new score value.
+We will update the score for this student's course with this query so it contains the new value:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT
+Parameter 3: exercise_1_score: INT
+
+Hardcoded example:
+UPDATE enrolled_in
+SET exercise_1_score = 30
+WHERE student_id = 1 AND course_id = 4;
+*/
+
+UPDATE enrolled_in
+SET exercise_1_score = ?
+WHERE student_id = ? AND course_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT STUDENT EXERCISE 2 SCORE FOR A COURSE :
+UX will present option to edit a student's exercise 2 score for a particular course and 
+and will ask for course id, student id and new score value.
+We will update the score for this student's course with this query so it contains the new value:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT
+Parameter 3: exercise_2_score: INT
+
+Hardcoded example:
+UPDATE enrolled_in
+SET exercise_2_score = 100
+WHERE student_id = 1 AND course_id = 4;
+*/
+
+UPDATE enrolled_in
+SET exercise_2_score = ?
+WHERE student_id = ? AND course_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT STUDENT EXERCISE 3 SCORE FOR A COURSE :
+UX will present option to edit a student's exercise 3 score for a particular course and 
+and will ask for course id, student id and new score value.
+We will update the score for this student's course with this query so it contains the new value:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT
+Parameter 3: exercise_3_score: INT
+
+Hardcoded example:
+UPDATE enrolled_in
+SET exercise_3_score = 68
+WHERE student_id = 1 AND course_id = 4;
+*/
+
+UPDATE enrolled_in
+SET exercise_3_score = ?
+WHERE student_id = ? AND course_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT STUDENT EXERCISE 4 SCORE FOR A COURSE :
+UX will present option to edit a student's exercise 4 score for a particular course and 
+and will ask for course id, student id and new score value.
+We will update the score for this student's course with this query so it contains the new value:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT
+Parameter 3: exercise_4_score: INT
+
+Hardcoded example:
+UPDATE enrolled_in
+SET exercise_4_score = 82
+WHERE student_id = 1 AND course_id = 4;
+*/
+
+UPDATE enrolled_in
+SET exercise_4_score = ?
+WHERE student_id = ? AND course_id = ?;
+
+/* =====================================================================*/
+/*
+EDIT STUDENT EXERCISE 5 SCORE FOR A COURSE :
+UX will present option to edit a student's exercise 5 score for a particular course and 
+and will ask for course id, student id and new score value.
+We will update the score for this student's course with this query so it contains the new value:
+
+Parameter 1: course_id: INT
+Parameter 2: student_id: INT
+Parameter 3: exercise_5_score: INT
+
+Hardcoded example:
+UPDATE enrolled_in
+SET exercise_5_score = 91
+WHERE student_id = 1 AND course_id = 4;
+*/
+
+UPDATE enrolled_in
+SET exercise_5_score = ?
+WHERE student_id = ? AND course_id = ?;
+
+/* =====================================================================*/
+/*
+REMOVE COURSE:
+UX will present option to delete a course and ask for course id of the course the user wishes to delete from the system.
+ We will delete the desired course and all of their associated data with this query:
+
+
+Parameter 1: course_id: INT
+
+Example with hardcoded values: 
+DELETE FROM course
+WHERE course_id = 2;
+
+*/
+
+DELETE FROM course
+WHERE course_id = ?;
+
+/* SQL QUERIES FOR RANGE */
+/* =====================================================================*/
+/*
+CREATE NEW RANGE:
+UX will present option to create a new range and ask for range parameter values.
+ We will add the new range with the data into the database with this query:
+
+Parameter 1: range_id: INT
+Parameter 2: range_type: ENUM('dirt', 'street'),
+Parameter 3: max_capacity INT
+
+
+Example with hardcoded values: 
+INSERT INTO range_location VALUES (5, 'dirt', 20),(6,'street', 25 );
+*/
+
+INSERT INTO range_location VALUES (?, ?, ?);
+
+/* =====================================================================*/
+/*
+VIEW ALL RANGES:
+UX will present option to view ranges.
+We will display all ranges with the data with this query:
+
+*/
+
+SELECT *
+FROM range_location;
+
+/* =====================================================================*/
+/*
+VIEW NUMBER OF SEATS LEFT FOR RANGES:
+UX will present option to view a report of all ranges on a given day and the remaining seats available.
+UX will ask for the date of course.
+We will display all ranges for that day and number of open seats reamining with this query:
+
+Parameter 1: course_date:DATE
+
+Example with hardcoded values:
+SELECT range_location.range_id, range_location.range_type, uses.in_session,
+  (range_location.max_capacity -
+    (SELECT COUNT(*)
+     FROM enrolled_in
+     JOIN course ON enrolled_in.course_id = course.course_id
+     JOIN uses ON course.course_id = uses.course_id
+     WHERE NOT IN uses.range_id = range_location.range_id AND course.course_date = '2023-1-30')) AS availability
+FROM range_location
+JOIN uses ON range_location.range_id = uses.range_id;
+*/
+
+SELECT range_location.range_id, range_location.range_type, uses.in_session,
+  (range_location.max_capacity -
+    (SELECT COUNT(*)
+     FROM enrolled_in
+     JOIN course ON enrolled_in.course_id = course.course_id
+     JOIN uses ON course.course_id = uses.course_id
+     WHERE uses.range_id = range_location.range_id AND course.course_date = '????-?-??')) AS availability
+FROM range_location
+JOIN uses ON range_location.range_id = uses.range_id;
+
+
+/* =====================================================================*/
+/*
+VIEW RANGE REPORT - AVAILABLE RANGES ON A GIVEN DAY:
+UX will present option to view a range's report of all ranges available on a given day.
+We will display all available ranges for that day for the report with this query:
+
+Parameter 1: course_date:DATE
+
+Example with hardcoded values:
+SELECT range_location.range_id,
+CASE
+WHEN sub_query.session_count = 1 THEN
+(SELECT CASE in_session
+WHEN 'AM' THEN 'PM'
+WHEN 'PM' THEN 'AM'
+ELSE 'NONE'
+END
+FROM uses
+WHERE uses.range_id = range_location.range_id
+AND uses.course_id IN (
+SELECT course.course_id
+FROM course
+WHERE course.course_date = '2023-01-30'
+)
+LIMIT 1
+)
+WHEN sub_query.session_count = 2 THEN 'NONE'
+ELSE 'AM & PM'
+END as session_available
+FROM range_location
+LEFT JOIN (
+SELECT uses.range_id,
+COUNT(uses.in_session) as session_count
+FROM uses
+JOIN course
+ON uses.course_id = course.course_id
+AND course.course_date = '2023-01-30'
+GROUP BY uses.range_id
+) sub_query
+ON range_location.range_id = sub_query.range_id
+LIMIT 0, 500
+
+*/
+
+SELECT range_location.range_id,
+CASE
+WHEN sub_query.session_count = 1 THEN
+(SELECT CASE in_session
+WHEN 'AM' THEN 'PM'
+WHEN 'PM' THEN 'AM'
+ELSE 'NONE'
+END
+FROM uses
+WHERE uses.range_id = range_location.range_id
+AND uses.course_id IN (
+SELECT course.course_id
+FROM course
+WHERE course.course_date = '????-??-??'
+)
+LIMIT 1
+)
+WHEN sub_query.session_count = 2 THEN 'NONE'
+ELSE 'AM & PM'
+END as session_available
+FROM range_location
+LEFT JOIN (
+SELECT uses.range_id,
+COUNT(uses.in_session) as session_count
+FROM uses
+JOIN course
+ON uses.course_id = course.course_id
+AND course.course_date = '????-??-??'
+GROUP BY uses.range_id
+) sub_query
+ON range_location.range_id = sub_query.range_id
+LIMIT 0, 500
+
+
+/* =====================================================================*/
+
+/*
+EDIT RANGE MAX CAPACITY:
+UX will present option to edit a range's data and ask for range id and new value.
+We will update the desired field of the desired student with this query so 
+it contains the new value:
+
+Parameter 1: range_id: INT
+Parameter 2: max_capacity INT
+
+harded example:
+UPDATE range_location
+SET max_capacity = 16
+WHERE range_id = 6;
+
+*/
+
+UPDATE range_location
+SET mac_capacity = ?
+WHERE range_id = ?;
+
+/* =====================================================================*/
+
+/*
+EDIT RANGE TYPE:
+UX will present option to edit a range's data and ask for range id and new value.
+We will update the desired field of the desired range with this query so 
+it contains the new value:
+
+Parameter 1: range_id: INT
+Parameter 2: range_type ENUM('dirt', 'street')
+
+Hardcoded exmaple:
+UPDATE range_location
+SET range_type = 'street'
+WHERE range_id = 5;
+
+*/
+
+UPDATE range_location
+SET range_type = ?
+WHERE range_id = ?;
+
+/* =====================================================================*/
+
+/*
+REMOVE range:
+UX will present option to delete a range and ask for range id of the range the user wishes to delete from the system.
+ We will delete the desired range and all of their associated data with this query:
+
+
+Parameter 1: range_id: INT
+
+Example with hardcoded values: 
+DELETE FROM range_location
+WHERE range_id =  6;
+
+*/
+
+DELETE FROM range_location
+WHERE range_id = ?;
+
+/* SQL QUERIES FOR CLASSROOM */
+/* =====================================================================*/
+/*
+CREATE NEW CLASSROOM:
+UX will present option to create a new classroom and ask for classroom parameter values.
+ We will add the new classroom with the data into the database with this query:
+
+Parameter 1: classroom_id: CHAR
+Parameter 2: max_capacity: INT
+
+
+Example with hardcoded values: 
+INSERT INTO classroom_location VALUES ('C', 25),('D', 40);
+*/
+
+INSERT INTO classroom_location VALUES (?, ?);
+
+/* =====================================================================*/
+/*
+VIEW ALL CLASSROOMS:
+UX will present option to view classrooms.
+We will display all classroom with the data with this query:
+
+*/
+
+SELECT *
+FROM class_location;
+
+/* =====================================================================*/
+/*
+VIEW CLASSROOM Seat Avaibility:
+UX will present option to view a specific classroom's report and ask for the date of course.
+ We will display all of the classroom's data for the report with this query:
+
+Parameter 1: course_date:DATE
+
+Example with hardcoded values:
+SELECT t.classroom_id, c.course_id, c.course_name, c.course_date,  c.course_type, 
+       t.in_session,
+       (cl.max_capacity - (SELECT COUNT(*) 
+                           FROM enrolled_in e 
+                           WHERE e.course_id = t.course_id)) as availability 
+FROM taught_in t 
+JOIN course c ON t.course_id = c.course_id 
+JOIN classroom_location cl ON t.classroom_id = cl.classroom_id 
+WHERE c.course_date = '2023-01-29';
+*/
+
+SELECT t.classroom_id, c.course_id, c.course_name, c.course_date,  c.course_type, 
+       t.in_session,
+       (cl.max_capacity - (SELECT COUNT(*) 
+                           FROM enrolled_in e 
+                           WHERE e.course_id = t.course_id)) as availability 
+FROM taught_in t 
+JOIN course c ON t.course_id = c.course_id 
+JOIN classroom_location cl ON t.classroom_id = cl.classroom_id 
+WHERE c.course_date = '????-??-??';
+
+/* =====================================================================*/
+/*
+VIEW CLASSROOM Avaibility:
+UX will present option to view a specific classroom's report and ask for the date of course.
+ We will display all of the classroom's data for the report with this query:
+
+Parameter 1: course_date:DATE
+
+Example with hardcoded values:
+SELECT classroom_location.classroom_id,
+CASE
+WHEN sub_query.session_count = 1 THEN
+(SELECT CASE in_session
+WHEN 'AM' THEN 'PM'
+WHEN 'PM' THEN 'AM'
+ELSE 'NONE'
+END
+FROM taught_in
+WHERE taught_in.classroom_id = classroom_location.classroom_id
+AND taught_in.course_id IN (
+SELECT course.course_id
+FROM course
+WHERE course.course_date = '2023-01-31'
+)
+LIMIT 1
+)
+WHEN sub_query.session_count = 2 THEN 'NONE'
+ELSE 'AM & PM'
+END as session_available
+FROM classroom_location
+LEFT JOIN (
+SELECT taught_in.classroom_id,
+COUNT(taught_in.in_session) as session_count
+FROM taught_in
+JOIN course
+ON taught_in.course_id = course.course_id
+AND course.course_date = '2023-01-31'
+GROUP BY taught_in.classroom_id
+) sub_query
+ON classroom_location.classroom_id = sub_query.classroom_id
+LIMIT 0, 500
+*/
+
+SELECT classroom_location.classroom_id,
+CASE
+WHEN sub_query.session_count = 1 THEN
+(SELECT CASE in_session
+WHEN 'AM' THEN 'PM'
+WHEN 'PM' THEN 'AM'
+ELSE 'NONE'
+END
+FROM taught_in
+WHERE taught_in.classroom_id = classroom_location.classroom_id
+AND taught_in.course_id IN (
+SELECT course.course_id
+FROM course
+WHERE course.course_date = '????-??-??'
+)
+LIMIT 1
+)
+WHEN sub_query.session_count = 2 THEN 'NONE'
+ELSE 'AM & PM'
+END as session_available
+FROM classroom_location
+LEFT JOIN (
+SELECT taught_in.classroom_id,
+COUNT(taught_in.in_session) as session_count
+FROM taught_in
+JOIN course
+ON taught_in.course_id = course.course_id
+AND course.course_date = '????-??-??'
+GROUP BY taught_in.classroom_id
+) sub_query
+ON classroom_location.classroom_id = sub_query.classroom_id
+LIMIT 0, 500
+
+/* =====================================================================*/
+/*
+EDIT CLASSROOM MAX CAPACITY:
+UX will present option to edit a classroom's data and ask for classroom id and new value for max capacity.
+We will update the desired field of the desired classroom with this query so 
+it contains the new value:
+
+Parameter 1: max_capacity: INT
+Parameter 2: : classroom_id: CHAR
+
+Hardcoded exmaple:
+UPDATE classroom_location
+SET max_capacity = 35
+WHERE classroom_id = 'A';
+
+*/
+
+UPDATE classroom_location
+SET max_capacity = ?
+WHERE classroom_id = ?;
+
+/* =====================================================================*/
+
+/*
+REMOVE CLASSROOM:
+UX will present option to delete a classroom and ask for classroom id of the classroom the user wishes to delete from the system.
+ We will delete the desired classroom and all of their associated data with this query:
+
+
+Parameter 1: classroom_id: CHAR
+
+Example with hardcoded values: 
+DELETE FROM classroom_location
+WHERE classroom_id =  'A';
+
+*/
+
+DELETE FROM classroom_location
+WHERE classroom_id = ?;
+
+
+/* SQL QUERIES FOR BIKES */
+/* =====================================================================*/
+/*
+CREATE NEW BIKE:
+UX will present option to create a new bike and ask for bike parameter values.
+We will add the new bike with the data into the database with this query:
+
+Parameter 1: vin VARCHAR(250)
+Parameter 2: license_plate VARCHAR(250)
+Parameter 3: repair_status BOOL
+Parameter 4: brand VARCHAR(250)
+Parameter 5: bike_type ENUM('dirt', 'street')
+Parameter 6: cc INT
+
+Example with hardcoded values: 
+INSERT INTO bike VALUES('SDE123SDA', '1234-ABC', 0, 'Mistubishi', 'street', 250);
+*/
+
+INSERT INTO bike VALUES(?, ?, ?, ?, ?, ?);
+
+/*
+CREATE NEW REPAIR BIKE ENTRY:
+UX will present option to create a new repair bike entry and ask for repair bike parameter values.
+We will add new repair bike entry with into the database with this query:
+
+Parameter 1: vin VARCHAR(250) NOT NULL
+Parameter 2: problem_date DATE
+Parameter 3: repair_cost INT
+Parameter 4: repair_date DATE
+Parameter 5: problem_description VARCHAR(500)
+
+Example with hardcoded values:
+INSERT INTO repair_bike VALUES('A7B6SDN9DD7H372J8','2023-02-01', 800, NULL, 'needs new wheels');
+*/
+
+INSERT INTO repair_bike VALUES(?, ?, ?, ?, ?);
+
+/* =====================================================================*/
+/*
+VIEW BIKES BASED ON BIKE TYPE:
+UX will present option to view bike.
+We will display all bike with the data with this query:
+
+Parameter 1: bike_type ENUM('dirt', 'street')
+
+Example with hardcoded values: 
+SELECT * FROM bike
+WHERE bike_type = 'dirt';
+
+SELECT * FROM bike
+WHERE bike_type = 'street';
+*/
+
+SELECT * FROM bike
+WHERE bike_type = ?;
+
+/*
+VIEW BIKE AVAILABILITY:
+UX will present option to view bikes available based on a certain.
+We will display bike's vin and bike type with the query:
+
+Parameter 1: course_date DATE NOT NULL
+
+Example with hardcorded values:
+SELECT vin, bike_type FROM bike
+WHERE vin NOT IN (
+SELECT vin FROM assigned_to 
+WHERE course_id IN (
+SELECT course_id FROM course WHERE course.course_date = '2023-01-31'));
+
+*/
+
+SELECT vin, bike_type FROM bike
+WHERE vin NOT IN (
+SELECT vin FROM assigned_to 
+WHERE course_id IN (
+SELECT course_id FROM course WHERE course.course_date = ?));
+
+/* =====================================================================*/
+/*
+VIEW ALL BIKES IN REPAIR:
+UX will present option to view a list of bikes in repair.
+We will display bike's vin, bike type, problem date, and problem description with the query:
+
+Example with hardcoded values:
+SELECT bike.vin, bike.bike_type, repair_bike.problem_date, repair_bike.problem_description 
+FROM repair_bike
+INNER JOIN bike ON bike.vin = repair_bike.vin;
+
+*/
+
+/* =====================================================================*/
+/*
+VIEW BIKE HISTORY:
+UX will present option to view a bike's current history.
+We will display the bike's vin, bike type, repair status, problem date, problem description, repair date, course id and course date attached to the bike with the query:
+
+Parameter 1: vin VARCHAR(250)
+
+Example with hardcoded values:
+SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date 
+FROM bike 
+LEFT JOIN repair_bike ON bike.vin = repair_bike.vin 
+LEFT JOIN assigned_to ON bike.vin = assigned_to.vin
+LEFT JOIN course ON assigned_to.course_id = course.course_id
+WHERE bike.vin = '1GHS8363429D49K2B';
+LIMIT 0, 500;
+
+SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date 
+FROM bike 
+LEFT JOIN repair_bike ON bike.vin = repair_bike.vin 
+LEFT JOIN assigned_to ON bike.vin = assigned_to.vin
+LEFT JOIN course ON assigned_to.course_id = course.course_id
+WHERE bike.vin = ?;
+LIMIT 0, 500;
+
+*/
+
+SELECT 
+/* =====================================================================*/
+/*
+EDIT BIKE LICENSE PLATE:
+UX will present option to edit a bike's license plate and ask for bike's vin and new value.
+We will update the desired field of the desired bike with this query so
+it contains the new value:
+
+Parameter 1: vin VARCHAR(250)
+Parameter 2: license_plate VARCHAR(250)
+
+Hardcoded example:
+UPDATE bike
+SET license_plate='ABC-1234'
+WHERE vin='NYH2334DD7234';
+*/
+
+UPDATE bike
+SET license_plate = ?
+WHERE vin = ?;
+
+/* =====================================================================*/
+/*
+EDIT BIKE REPAIR STATUS:
+UX will present option to edit a bike's repair status and ask for bike's vin and new value.
+We will update the desired field of the desired bike with this query so
+it contains the new value:
+
+Parameter 1: vin VARCHAR(250)
+Parameter 2: repair_status BOOL
+
+Hardcoded example:
+UPDATE bike
+SET repair_status = FALSE
+WHERE vin='NYH2334DD7234';
+*/
+
+UPDATE bike
+SET repair_status = ?
+WHERE vin = ?;
+
+/* =====================================================================*/
+/*
+REMOVE BIKE:
+UX will present option to delete bike and ask for the vin of the bike the user wishes to delete from the system.
+ We will delete the desired vin and all of their associated data with this query:
+
+
+Parameter 1: vin VARCHAR(250)
+
+Example with hardcoded values: 
+DELETE FROM bike
+WHERE vin =  'NYH2334DD7234';
+
+*/
+
+DELETE FROM bike
+WHERE vin = ?;
+
+
+
