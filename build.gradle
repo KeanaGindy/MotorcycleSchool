@@ -1,0 +1,13 @@
+apply plugin: 'application'
+
+sourceSets.main.java.srcDirs = ['src']
+mainClassName = "ser322.Main"
+
+dependencies {
+   implementation files ('lib/mysql-connector-java-5.1.45-bin.jar')
+}
+
+run {
+    standardInput = System.in
+}
+
