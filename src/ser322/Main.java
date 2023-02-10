@@ -17,7 +17,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Boolean isValidInput = false;
+        Boolean isDone = false;
         Connection conn = null;
 
         //check for correct number of command line args
@@ -41,54 +41,40 @@ public class Main {
             // to set to false to batch within a single transaction.
             conn.setAutoCommit(false);
 
-            //welcome user and display main menu
+            //display user welcome
             System.out.println("Welcome to the Motorcycle School Admin System!");
-            System.out.println("================================================");
-            System.out.println("MAIN MENU");
-            System.out.println("\t1 - Manage Students");
-            System.out.println("\t2 - Manage Instructors");
-            System.out.println("\t3 - Manage Courses");
-            System.out.println("\t4 - Manage Ranges");
-            System.out.println("\t5 - Manage Classrooms");
-            System.out.println("\t6 - Manage Bikes");
-            System.out.println("\t0 - Exit");
 
-            System.out.println("Please select a valid menu option (0-6)");
             Scanner scr;
-            while(isValidInput == false) {
+            String userOpt = "-1";
+            do {
+                displayMainMenu();
                 scr = new Scanner(System.in);
-                String userOpt = scr.nextLine();
+                userOpt = scr.nextLine();
                 System.out.println("You selected option: " + userOpt);  
                 //validate user input
                 switch (userOpt) {
                     case "1":
-                        //Students.showStudentMenu(conn);
-                        isValidInput = true;
+                        Students.showStudentMenu(conn, scr);
                         break;
                     case "2":
                         //Instructors
-                        isValidInput = true;
                         break;
                     case "3":
                         //Courses
-                        isValidInput = true;
                         break;
                     case "4":
                         //Ranges
-                        isValidInput = true;
                         break;
                     case "5":
                         //Classrooms
-                        isValidInput = true;
                         break;
                     case "6": 
                         //Bikes
-                        isValidInput = true;
                         break;
                     case "0":
                         //exit program
+                        isDone = true;
                         System.out.println("Exiting...");
-                        isValidInput = true;
                         System.exit(0);
                         break;
                     default:
@@ -96,8 +82,8 @@ public class Main {
                         System.out.println("Invalid menu option. Please try again with a valid integer (0-6).");
                         break;
                 }
-                scr.close();
-            }
+            } while (isDone == false);
+            scr.close();
         }catch(Exception e) {
             e.printStackTrace();
         }finally {
@@ -114,6 +100,20 @@ public class Main {
             }
         }
     
+    }
+
+    public static void displayMainMenu() {
+        System.out.println("================================================");
+        System.out.println("MAIN MENU");
+        System.out.println("================================================");
+        System.out.println("\t1 - Manage Students");
+        System.out.println("\t2 - Manage Instructors");
+        System.out.println("\t3 - Manage Courses");
+        System.out.println("\t4 - Manage Ranges");
+        System.out.println("\t5 - Manage Classrooms");
+        System.out.println("\t6 - Manage Bikes");
+        System.out.println("\t0 - Exit");
+        System.out.println("Please select a valid menu option (0-6)");
     }
     
 }
