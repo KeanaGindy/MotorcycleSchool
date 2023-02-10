@@ -90,9 +90,11 @@ public class Main {
                         System.out.println("Exiting...");
                         isValidInput = true;
                         System.exit(0);
+                        break;
                     default:
                         //invalid input
                         System.out.println("Invalid menu option. Please try again with a valid integer (0-6).");
+                        break;
                 }
                 scr.close();
             }
