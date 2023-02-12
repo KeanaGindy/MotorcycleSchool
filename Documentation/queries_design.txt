@@ -99,7 +99,7 @@ WHERE student_id = 7;
 
 UPDATE student
 SET address = ?
-WHERE student_id = student_id;
+WHERE student_id = ?;
 
 /* =====================================================================*/
 
@@ -121,7 +121,7 @@ WHERE student_id = 7;
 
 UPDATE student
 SET phone = ?
-WHERE student_id = student_id;
+WHERE student_id = ?;
 
 /* =====================================================================*/
 
