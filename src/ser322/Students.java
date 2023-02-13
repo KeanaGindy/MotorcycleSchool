@@ -15,7 +15,6 @@ public class Students {
 
     public static void showStudentMenu(Connection conn, Scanner scr) {
         boolean isDone = false;
-        PreparedStatement ps = null;
         
         String userOpt = "-1";
         do {
@@ -25,7 +24,7 @@ public class Students {
             //validate user input
             switch (userOpt) {
                 case "1":
-                    createStudent(conn, scr, ps);
+                    createStudent(conn, scr);
                     break;
                 case "2":
                     //view
@@ -62,15 +61,9 @@ public class Students {
     
     /*
      * Method to add a new student to the database
-        Parameter 1: student_id: INT
-        Parameter 2: student_name: VARCHAR(250)
-        Parameter 3: dob: DATE
-        Parameter 4: address: VARCHAR(250)
-        Parameter 5: phone: VARCHAR(15)
-            Example with hardcoded values: 
-            INSERT INTO student VALUES (83738938, 'Gio', '1995-01-01', '555 Street State ZIP', '5555555555');
      */
-    public static void createStudent(Connection conn, Scanner scr, PreparedStatement ps) {
+    public static void createStudent(Connection conn, Scanner scr) {
+        PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
         ResultSet rs = null;
         int student_id = -1;
@@ -84,7 +77,7 @@ public class Students {
         System.out.println("Please enter the student's id number: ");
         while (!scr.hasNextInt()) {
             System.out.println("Error: That was not a number. Please enter an integer!");
-            scr.next(); // this is important!
+            scr.next(); 
         }
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
@@ -101,7 +94,6 @@ public class Students {
             java.util.Date temp_date = formatter.parse(dob_str);
             dob = new java.sql.Date(temp_date.getTime());  
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
             System.out.println("Date was not in correct format");
             e.printStackTrace();
         }
