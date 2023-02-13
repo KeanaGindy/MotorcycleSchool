@@ -27,7 +27,7 @@ public class Course extends Option implements OptionProtocol {
                     //edit
                     break;
                 case "4":
-                    //delete
+                    delete(conn, scr);
                     break;
                 case "0":
                     returnToMainMenu();
@@ -58,6 +58,31 @@ public class Course extends Option implements OptionProtocol {
             viewDB(rs);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void delete(Connection conn, Scanner scr) {
+        // Input Store Variables
+        Integer _pk = null;
+
+        PreparedStatement ps = null;
+        
+        System.out.println("Enter course to delete: pk(course_id):");
+        _pk = scr.nextInt();
+
+        String deleteStmt = "DELETE FROM course WHERE course_id = ?";
+        try {
+            ps = conn.prepareStatement(deleteStmt);
+            ps.setInt(1, _pk);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        if (updateDB(ps, conn)) {
+            System.out.println("Record deleted successfully.");
+        } else {
+            System.out.println("No records found to delete.");
         }
     }
 

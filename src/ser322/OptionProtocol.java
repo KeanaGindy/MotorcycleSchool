@@ -9,4 +9,5 @@ public interface OptionProtocol {
     void displayMenuOptions();
     void view(Connection conn);
     void create(Connection conn, Scanner scr);
+    void delete(Connection conn, Scanner scr);
 }

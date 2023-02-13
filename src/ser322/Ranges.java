@@ -27,10 +27,10 @@ public class Ranges extends Option implements OptionProtocol {
                     view(conn);
                     break;
                 case "3":
-                    //edit
+                    update(conn, scr);
                     break;
                 case "4":
-                    //delete
+                    delete(conn, scr);
                     break;
                 case "0":
                     returnToMainMenu();
@@ -60,6 +60,59 @@ public class Ranges extends Option implements OptionProtocol {
             ResultSet rs = stmt.executeQuery(queryStmt);
             viewDB(rs);
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete(Connection conn, Scanner scr) {
+        // Input Store Variables
+        Integer _pk = null;
+
+        PreparedStatement ps = null;
+        
+        System.out.println("Enter range to delete: pk(range_id):");
+        _pk = scr.nextInt();
+
+        String deleteStmt = "DELETE FROM range_location WHERE range_id = ?";
+        try {
+            ps = conn.prepareStatement(deleteStmt);
+            ps.setInt(1, _pk);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (updateDB(ps, conn)) {
+            System.out.println("Record deleted successfully.");
+        } else {
+            System.out.println("No records found to delete.");
+        }
+    }
+
+    public void update(Connection conn, Scanner scr) {
+        // Input Store Variables
+        Integer _pk = null;
+        Integer _newCapacity = null;
+
+        PreparedStatement ps = null;
+
+        System.out.println("Enter ID of range you'd like to update:");
+        _pk = scr.nextInt();
+        System.out.println("Enter ID of range you'd like to update:");
+        _newCapacity = scr.nextInt();
+
+        String updateStmt = "UPDATE range_location SET max_capacity = ? WHERE range_id = ?;";
+        try {
+            ps = conn.prepareStatement(updateStmt);
+            ps.setInt(1, _newCapacity);
+            ps.setInt(2, _pk);
+            
+            if (updateDB(ps, conn)) {
+                System.out.println("Record updated successfully.");
+            } else {
+                System.out.println("No records found to update.");
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
