@@ -1,13 +1,22 @@
 package ser322;
 
 import java.sql.Connection;
+import java.sql.Date;
+import java.util.Locale;
 import java.util.Scanner;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 
 public class Students {
-    
+
     public static void showStudentMenu(Connection conn, Scanner scr) {
         boolean isDone = false;
-
+        PreparedStatement ps = null;
+        
         String userOpt = "-1";
         do {
             displayStudentMenu();
@@ -16,7 +25,7 @@ public class Students {
             //validate user input
             switch (userOpt) {
                 case "1":
-                    //create
+                    createStudent(conn, scr, ps);
                     break;
                 case "2":
                     //view
@@ -39,7 +48,7 @@ public class Students {
             } 
         } while (isDone == false);
     }
-
+    /* Method to display student menu*/
     public static void displayStudentMenu() {
         System.out.println("Manage Students");
         System.out.println("\t1 - Create New Student");
@@ -51,4 +60,107 @@ public class Students {
         System.out.println("Please select a valid menu option (0-4)");
     }
     
+    /*
+     * Method to add a new student to the database
+        Parameter 1: student_id: INT
+        Parameter 2: student_name: VARCHAR(250)
+        Parameter 3: dob: DATE
+        Parameter 4: address: VARCHAR(250)
+        Parameter 5: phone: VARCHAR(15)
+            Example with hardcoded values: 
+            INSERT INTO student VALUES (83738938, 'Gio', '1995-01-01', '555 Street State ZIP', '5555555555');
+     */
+    public static void createStudent(Connection conn, Scanner scr, PreparedStatement ps) {
+        PreparedStatement psCheckDupe = null;
+        ResultSet rs = null;
+        int student_id = -1;
+        String student_name = "";
+        java.sql.Date dob = null;
+        String address = "";
+        String phone = "";
+        boolean studentExists = false;
+
+        //get user input
+        System.out.println("Please enter the student's id number: ");
+        while (!scr.hasNextInt()) {
+            System.out.println("Error: That was not a number. Please enter an integer!");
+            scr.next(); // this is important!
+        }
+        student_id = scr.nextInt();
+        scr.nextLine(); // consume extra newline
+
+        System.out.println("Please enter the student's full name: ");
+        student_name = scr.nextLine();
+
+        //TODO add error message for incorrect date format
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        System.out.println("Please enter the student's date of birth (format: `YYYY-MM-DD`): ");
+        String dob_str = "";
+        dob_str = scr.nextLine();
+        try {
+            java.util.Date temp_date = formatter.parse(dob_str);
+            dob = new java.sql.Date(temp_date.getTime());  
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            System.out.println("Date was not in correct format");
+            e.printStackTrace();
+        }
+
+        System.out.println("Please enter the student's address: ");
+        address = scr.nextLine();
+
+        //TODO add error checking for number of digits in phone number
+        System.out.println("Please enter the student's phone number (no dashes/no spaces): ");
+        phone = scr.nextLine();
+
+        //check to make sure student doesn't already exist
+        //if doesn't exist write to db
+	    try {
+            psCheckDupe = conn.prepareStatement("SELECT * FROM student WHERE student_id = ?");
+            psCheckDupe.setInt(1, student_id);
+            rs = psCheckDupe.executeQuery();
+            //get size of result set
+            int i = 0;
+            while(rs.next()) {
+                i++;
+            }           
+            if (rs != null && i > 0) {
+                //student exists
+                System.out.println("Student already exists! Returning to menu...");
+                studentExists = true;
+                psCheckDupe.clearParameters();
+                psCheckDupe.close();
+            }
+            if (!studentExists) {
+                ps = conn.prepareStatement("INSERT INTO student VALUES (?, ?, ?, ?, ?);");
+                ps.setInt(1, student_id);
+                ps.setString(2, student_name);
+                ps.setDate(3, dob);
+                ps.setString(4, address);
+                ps.setString(5, phone);
+                if (ps.executeUpdate() > 0) {
+                    System.out.println("Inserted student OK");
+                }
+                ps.clearParameters();
+                ps.close();
+
+                // Have to do this to write changes to a DB
+                conn.commit();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) 
+                    ps.close();
+                if (psCheckDupe != null)
+                    psCheckDupe.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+
+    }
 }
