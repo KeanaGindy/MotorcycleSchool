@@ -5,6 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class Option {
     Boolean isDone = false;
@@ -77,6 +80,19 @@ public class Option {
             i++;
         }
         return rs != null && i > 0;
+    }
+
+    java.sql.Date parseDate(String dateString) {
+        java.sql.Date date = null;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            java.util.Date temp_date = formatter.parse(dateString);
+            date = new java.sql.Date(temp_date.getTime());  
+        } catch (ParseException e) {
+            System.out.println("Date was not in correct format");
+            e.printStackTrace();
+        }
+        return date;
     }
 
 

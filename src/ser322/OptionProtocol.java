@@ -7,4 +7,6 @@ import java.sql.Connection;
 public interface OptionProtocol {
     void openMenu(Connection conn, Scanner scr);
     void displayMenuOptions();
+    void view(Connection conn);
+    void create(Connection conn, Scanner scr);
 }
