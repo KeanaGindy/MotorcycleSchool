@@ -63,7 +63,8 @@ public class Main {
                         //Courses
                         break;
                     case "4":
-                        //Ranges
+                        Ranges ranges = new Ranges();
+                        ranges.openMenu(conn, scr);
                         break;
                     case "5":
                         //Classrooms
