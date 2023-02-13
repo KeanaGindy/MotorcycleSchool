@@ -175,8 +175,7 @@ public class Students {
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
 
-        //check to make sure student doesn't already exist
-        //if doesn't exist write to db
+        //check to make sure student exists
 	    try {
             psCheckDupe = conn.prepareStatement("SELECT * FROM student WHERE student_id = ?");
             psCheckDupe.setInt(1, student_id);
