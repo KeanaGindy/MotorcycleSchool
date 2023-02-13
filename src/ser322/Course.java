@@ -1,19 +1,16 @@
 package ser322;
 
-import java.util.Scanner;
-
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
 
-public class Ranges extends Option implements OptionProtocol {
+public class Course extends Option implements OptionProtocol {
 
-
+  
     public void openMenu(Connection conn, Scanner scr) {
-        
         do {
             displayMenuOptions();
             userOpt = scr.nextLine();
@@ -27,7 +24,7 @@ public class Ranges extends Option implements OptionProtocol {
                     view(conn);
                     break;
                 case "3":
-                    update(conn, scr);
+                    //edit
                     break;
                 case "4":
                     delete(conn, scr);
@@ -39,22 +36,22 @@ public class Ranges extends Option implements OptionProtocol {
                     invalidInput();
                     break;
             } 
-        } while (isDone == false);
+        } while (isDone == false);        
     }
 
     public void displayMenuOptions() {
-        System.out.println("Manage Ranges");
-        System.out.println("\t1 - Create New Range");
-        System.out.println("\t2 - View Ranges");
-        System.out.println("\t3 - Edit Range");
-        System.out.println("\t4 - Delete Range");
+        System.out.println("Manage Courses");
+        System.out.println("\t1 - Create New Course");
+        System.out.println("\t2 - View Courses");
+        System.out.println("\t3 - Edit Course");
+        System.out.println("\t4 - Delete Course");
         System.out.println("\t0 - Return to Main Menu");
 
         System.out.println("Please select a valid menu option (0-4)");
     }
 
     public void view(Connection conn) {
-        String queryStmt = "SELECT * from range_location";
+        String queryStmt = "SELECT * from course";
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(queryStmt);
@@ -70,10 +67,10 @@ public class Ranges extends Option implements OptionProtocol {
 
         PreparedStatement ps = null;
         
-        System.out.println("Enter range to delete: pk(range_id):");
+        System.out.println("Enter course to delete: pk(course_id):");
         _pk = scr.nextInt();
 
-        String deleteStmt = "DELETE FROM range_location WHERE range_id = ?";
+        String deleteStmt = "DELETE FROM course WHERE course_id = ?";
         try {
             ps = conn.prepareStatement(deleteStmt);
             ps.setInt(1, _pk);
@@ -81,7 +78,7 @@ public class Ranges extends Option implements OptionProtocol {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
         if (updateDB(ps, conn)) {
             System.out.println("Record deleted successfully.");
         } else {
@@ -89,39 +86,16 @@ public class Ranges extends Option implements OptionProtocol {
         }
     }
 
-    public void update(Connection conn, Scanner scr) {
-        // Input Store Variables
-        Integer _pk = null;
-        Integer _newCapacity = null;
-
-        PreparedStatement ps = null;
-
-        System.out.println("Enter ID of range you'd like to update:");
-        _pk = scr.nextInt();
-        System.out.println("Enter ID of range you'd like to update:");
-        _newCapacity = scr.nextInt();
-
-        String updateStmt = "UPDATE range_location SET max_capacity = ? WHERE range_id = ?;";
-        try {
-            ps = conn.prepareStatement(updateStmt);
-            ps.setInt(1, _newCapacity);
-            ps.setInt(2, _pk);
-            
-            if (updateDB(ps, conn)) {
-                System.out.println("Record updated successfully.");
-            } else {
-                System.out.println("No records found to update.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void create(Connection conn, Scanner scr) {
         // Input Store Variables
-        Integer _rangeId = null;
-        String _rangeType = null;
-        Integer _maxCapacity = null;
+        Integer _courseId = null;
+        String _courseName = null;
+        String _courseDescription = null;
+        java.sql.Date _courseDate = null;
+        Integer _cost = null;
+        String _courseType = "dirt";
+
+
 
         // Statement & Duplicate Check Variables
         PreparedStatement ps = null;
@@ -129,20 +103,28 @@ public class Ranges extends Option implements OptionProtocol {
         Boolean duplicate = null;
 
         // Prompt for Input
-        System.out.print("Enter range id: \n");
-        _rangeId = scr.nextInt();
-        System.out.print("Enter range type: \n");
+        System.out.print("Enter course id: \n");
+        _courseId = scr.nextInt();
+        System.out.print("Enter course name: \n");
         scr.nextLine();
-        _rangeType = scr.nextLine();
-        System.out.print("Enter max capacity: \n");
-        _maxCapacity = scr.nextInt();
+        _courseName = scr.nextLine();
+        System.out.print("Enter course description: \n");
+        _courseDescription = scr.nextLine();
+        System.out.print("Enter course type: \n");
+        _courseType = scr.nextLine();
+        System.out.print("Enter course date: (YYYY-MM-DD) \n");
+        String _dateStr = scr.nextLine();
+        _courseDate = parseDate(_dateStr);
+        System.out.print("Enter course cost: \n");
+        _cost = scr.nextInt();
+
 
   
         // Check for Duplicate
-        String lookupStmt = "SELECT * FROM range_location WHERE range_id = ?";
+        String lookupStmt = "SELECT * FROM course WHERE course_id = ?";
         try {
             psdc = conn.prepareStatement(lookupStmt);
-            psdc.setInt(1, _rangeId);
+            psdc.setInt(1, _courseId);
             duplicate = checkDuplicate(psdc);
         } catch (Exception e) {
             e.printStackTrace();
@@ -150,24 +132,29 @@ public class Ranges extends Option implements OptionProtocol {
 
         // Return if Duplicate Found
         if ( duplicate ) {
-            System.out.println("\nDUPLICATE ENTRY:: Range with provided ID already exists. Returning to menu.\n");
+            System.out.println("\nDUPLICATE ENTRY:: Course with provided ID already exists. Returning to menu.\n");
             return;
         }
 
         // Proceed with Insertion Flow
-        String insertStmt = "INSERT INTO range_location VALUES (?, ?, ?);";
+        String insertStmt = "INSERT INTO course VALUES (?, ?, ?, ?, ?, ?);";
         try {
             ps = conn.prepareStatement(insertStmt);
-            ps.setInt(1, _rangeId);
-            ps.setString(2, _rangeType);
-            ps.setInt(3, _maxCapacity);
+
+            ps.setInt(1, _courseId);
+            ps.setString(2, _courseName);
+            ps.setString(3, _courseDescription);
+            ps.setDate(4, _courseDate);
+            ps.setInt(5, _cost);
+            ps.setString(6, _courseType);
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             if (updateDB(ps, conn)) {
-                System.out.println("Successfully added range to DB");
+                System.out.println("Successfully added course to DB");
             } else {
-                System.out.println("Failed to add range to DB");
+                System.out.println("Failed to add course to DB");
             }
             try {
                 // Ensure Statement is Closed
@@ -181,4 +168,5 @@ public class Ranges extends Option implements OptionProtocol {
             }
         }
     }
+    
 }
