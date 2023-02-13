@@ -4,6 +4,11 @@ import java.util.Scanner;
 
 import java.sql.Connection;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public class Ranges extends Option implements OptionProtocol {
 
 
@@ -16,10 +21,10 @@ public class Ranges extends Option implements OptionProtocol {
             //validate user input
             switch (userOpt) {
                 case "1":
-                    //create
+                    create(conn, scr);
                     break;
                 case "2":
-                    //view
+                    view(conn);
                     break;
                 case "3":
                     //edit
@@ -46,5 +51,81 @@ public class Ranges extends Option implements OptionProtocol {
         System.out.println("\t0 - Return to Main Menu");
 
         System.out.println("Please select a valid menu option (0-4)");
+    }
+
+    public void view(Connection conn) {
+        String queryStmt = "SELECT * from range_location";
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(queryStmt);
+            viewDB(rs);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void create(Connection conn, Scanner scr) {
+        // Input Store Variables
+        Integer _rangeId = null;
+        String _rangeType = null;
+        Integer _maxCapacity = null;
+
+        // Statement & Duplicate Check Variables
+        PreparedStatement ps = null;
+        PreparedStatement psdc = null;
+        Boolean duplicate = null;
+
+        // Prompt for Input
+        System.out.print("Enter range id: \n");
+        _rangeId = scr.nextInt();
+        System.out.print("Enter range type: \n");
+        scr.nextLine();
+        _rangeType = scr.nextLine();
+        System.out.print("Enter max capacity: \n");
+        _maxCapacity = scr.nextInt();
+
+  
+        // Check for Duplicate
+        String lookupStmt = "SELECT * FROM range_location WHERE range_id = ?";
+        try {
+            psdc = conn.prepareStatement(lookupStmt);
+            psdc.setInt(1, _rangeId);
+            duplicate = checkDuplicate(psdc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Return if Duplicate Found
+        if ( duplicate ) {
+            System.out.println("\nDUPLICATE ENTRY:: Range with provided ID already exists. Returning to menu.\n");
+            return;
+        }
+
+        // Proceed with Insertion Flow
+        String insertStmt = "INSERT INTO range_location VALUES (?, ?, ?);";
+        try {
+            ps = conn.prepareStatement(insertStmt);
+            ps.setInt(1, _rangeId);
+            ps.setString(2, _rangeType);
+            ps.setInt(3, _maxCapacity);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (updateDB(ps, conn)) {
+                System.out.println("Successfully added range to DB");
+            } else {
+                System.out.println("Failed to add range to DB");
+            }
+            try {
+                // Ensure Statement is Closed
+                if (ps != null) {
+                    ps.close();
+                }
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
     }
 }
