@@ -352,6 +352,7 @@ public class Students {
                 psCheckDupe.close();
             }
             if (studentExists) {
+                System.out.println("STUDENT REPORT FOR STUDENT WITH ID NUMBER: " + student_id);
                 ps = conn.prepareStatement("SELECT * FROM enrolled_in WHERE student_id = ? ORDER BY course_id;");
                 ps.setInt(1, student_id);
                 reportRs = ps.executeQuery();
