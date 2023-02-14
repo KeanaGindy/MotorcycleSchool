@@ -31,7 +31,7 @@ public class Students {
                     viewStudentOptions(conn, scr);
                     break;
                 case "3":
-                    //edit
+                    editStudentOptions(conn, scr);
                     break;
                 case "4":
                     deleteStudent(conn, scr);
@@ -228,11 +228,6 @@ public class Students {
      * Method to ask user which view option they would like.
     */
     public void viewStudentOptions(Connection conn, Scanner scr) {
-        PreparedStatement ps = null;
-        PreparedStatement psCheckDupe = null;
-        ResultSet rs = null;
-        int student_id = -1;
-        boolean studentExists = true;
         boolean isComplete = false;
         String userOpt = "-1";
         do {
@@ -404,5 +399,280 @@ public class Students {
 
     }
 
+      /*
+     * Method to ask user which edit option they would like.
+    */
+    public void editStudentOptions(Connection conn, Scanner scr) {
+        boolean isComplete = false;
+        String userOpt = "-1";
+        do {
+            //ask user if want to view all students of student report
+            System.out.println("-----------------------------------------");
+            System.out.println("Edit Students Menu");
+            System.out.println("-----------------------------------------");
+            System.out.println("\t1 - Edit Student Name");
+            System.out.println("\t2 - Edit Student Address");
+            System.out.println("\t3 - Edit Student Phone");
+            System.out.println("\t0 - Return to Student Menu");
+            System.out.println("Please select a valid menu option (0-3)");
+
+            userOpt = scr.nextLine();
+            
+            System.out.println("You selected option: " + userOpt);  
+            //validate user input
+            switch (userOpt) {
+                case "1":
+                    editStudentName(conn, scr);
+                    break;
+                case "2":
+                    editStudentAddress(conn, scr);
+                    break;
+                case "3":
+                    editStudentPhone(conn, scr);
+                    break;
+                case "0":
+                    //exit to main menu
+                    isComplete = true;
+                    System.out.println("Returning to student menu..");
+                    break;
+                default:
+                    //invalid input
+                    System.out.println("Invalid menu option. Please try again with a valid option (0-3).");
+                    break;
+            } 
+        } while(isComplete == false);
+   
+    }
+
+    /*
+     * Method to edit a student name based on student id
+    */
+    public void editStudentName(Connection conn, Scanner scr) {
+        PreparedStatement ps = null;
+        PreparedStatement psCheckDupe = null;
+        ResultSet rs = null;
+        String new_name = "";
+        int student_id = -1;
+        boolean studentExists = true;
+    
+        //get user input
+        System.out.println("Please enter the student's id number: ");
+        while (!scr.hasNextInt()) {
+            System.out.println("Error: That was not a number. Please enter an integer!");
+            scr.next(); 
+        }
+        student_id = scr.nextInt();
+        scr.nextLine(); // consume extra newline
+
+        //check to make sure student exists
+	    try {
+            psCheckDupe = conn.prepareStatement("SELECT * FROM student WHERE student_id = ?");
+            psCheckDupe.setInt(1, student_id);
+            rs = psCheckDupe.executeQuery();
+            //get size of result set
+            int i = 0;
+            while(rs.next()) {
+                i++;
+            }           
+            if (rs == null || i == 0) {
+                //student does not exist
+                System.out.println("Student does not exist! Returning to menu...");
+                studentExists = false;
+                psCheckDupe.clearParameters();
+                psCheckDupe.close();
+            }
+            if (studentExists) {
+                //get new name
+                System.out.println("Please enter the student's new name: ");
+                new_name = scr.nextLine();
+
+                //make update
+                System.out.println("EDIT STUDENT NAME TO " + new_name + " FOR STUDENT WITH ID NUMBER: " + student_id);
+                ps = conn.prepareStatement("UPDATE student SET student_name = ? WHERE student_id = ?;");
+                ps.setString(1, new_name);
+                ps.setInt(2, student_id);
+                
+                if (ps.executeUpdate() > 0) {
+                    System.out.println("Updated student OK");
+                } else {
+                    System.out.println("Update failed.");
+                }
+
+                ps.clearParameters();
+                ps.close();
+                // Have to do this to write changes to a DB
+                conn.commit();
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) 
+                    ps.close();
+                if (rs != null)
+                    rs.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+
+    }
+
+    /*
+     * Method to edit a student address based on student id
+    */
+    public void editStudentAddress(Connection conn, Scanner scr) {
+        PreparedStatement ps = null;
+        PreparedStatement psCheckDupe = null;
+        ResultSet rs = null;
+        String new_address = "";
+        int student_id = -1;
+        boolean studentExists = true;
+    
+        //get user input
+        System.out.println("Please enter the student's id number: ");
+        while (!scr.hasNextInt()) {
+            System.out.println("Error: That was not a number. Please enter an integer!");
+            scr.next(); 
+        }
+        student_id = scr.nextInt();
+        scr.nextLine(); // consume extra newline
+
+        //check to make sure student exists
+	    try {
+            psCheckDupe = conn.prepareStatement("SELECT * FROM student WHERE student_id = ?");
+            psCheckDupe.setInt(1, student_id);
+            rs = psCheckDupe.executeQuery();
+            //get size of result set
+            int i = 0;
+            while(rs.next()) {
+                i++;
+            }           
+            if (rs == null || i == 0) {
+                //student does not exist
+                System.out.println("Student does not exist! Returning to menu...");
+                studentExists = false;
+                psCheckDupe.clearParameters();
+                psCheckDupe.close();
+            }
+            if (studentExists) {
+                //get new name
+                System.out.println("Please enter the student's new address: ");
+                new_address = scr.nextLine();
+
+                //make update
+                System.out.println("EDIT STUDENT ADDRESS TO " + new_address + " FOR STUDENT WITH ID NUMBER: " + student_id);
+                ps = conn.prepareStatement("UPDATE student SET address = ? WHERE student_id = ?;");
+                ps.setString(1, new_address);
+                ps.setInt(2, student_id);
+                
+                if (ps.executeUpdate() > 0) {
+                    System.out.println("Updated student OK");
+                } else {
+                    System.out.println("Update failed.");
+                }
+
+                ps.clearParameters();
+                ps.close();
+                // Have to do this to write changes to a DB
+                conn.commit();
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) 
+                    ps.close();
+                if (rs != null)
+                    rs.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+
+    }
+
+    /*
+     * Method to edit a student address based on student id
+    */
+    public void editStudentPhone(Connection conn, Scanner scr) {
+        PreparedStatement ps = null;
+        PreparedStatement psCheckDupe = null;
+        ResultSet rs = null;
+        String new_phone= "";
+        int student_id = -1;
+        boolean studentExists = true;
+    
+        //get user input
+        System.out.println("Please enter the student's id number: ");
+        while (!scr.hasNextInt()) {
+            System.out.println("Error: That was not a number. Please enter an integer!");
+            scr.next(); 
+        }
+        student_id = scr.nextInt();
+        scr.nextLine(); // consume extra newline
+
+        //check to make sure student exists
+	    try {
+            psCheckDupe = conn.prepareStatement("SELECT * FROM student WHERE student_id = ?");
+            psCheckDupe.setInt(1, student_id);
+            rs = psCheckDupe.executeQuery();
+            //get size of result set
+            int i = 0;
+            while(rs.next()) {
+                i++;
+            }           
+            if (rs == null || i == 0) {
+                //student does not exist
+                System.out.println("Student does not exist! Returning to menu...");
+                studentExists = false;
+                psCheckDupe.clearParameters();
+                psCheckDupe.close();
+            }
+            if (studentExists) {
+                //get new name
+                System.out.println("Please enter the student's new phone number: ");
+                new_phone = scr.nextLine();
+
+                //make update
+                System.out.println("EDIT STUDENT ADDRESS TO " + new_phone + " FOR STUDENT WITH ID NUMBER: " + student_id);
+                ps = conn.prepareStatement("UPDATE student SET phone = ? WHERE student_id = ?;");
+                ps.setString(1, new_phone);
+                ps.setInt(2, student_id);
+                
+                if (ps.executeUpdate() > 0) {
+                    System.out.println("Updated student OK");
+                } else {
+                    System.out.println("Update failed.");
+                }
+
+                ps.clearParameters();
+                ps.close();
+                // Have to do this to write changes to a DB
+                conn.commit();
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) 
+                    ps.close();
+                if (rs != null)
+                    rs.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+
+    }
 
 }
