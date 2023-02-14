@@ -13,11 +13,12 @@ javac -d ./classes/ ./src/ser322/Main.java ./src/ser322/Students.java
 Note: For Windows (note the `;` If not on windows use `:`)
 
 Example:
-`javac -d ./classes/ ./src/ser322/Main.java ./src/ser322/Students.java`
+`javac -d ./classes/ ./src/ser322/Main.java ./src/ser322/Students.java ./src/ser322/Course.java ./src/ser322/Option.java ./src/ser322/OptionProtocol.java ./src/ser322/Ranges.java`
 
 `java -cp '.\lib\mysql-connector-java-5.1.45-bin.jar;classes' ser322.Main "jdbc:mysql://localhost:3306/motorcycleschool?autoconnect=true&useSSL=false" root example com.mysql.jdbc.Driver`
 
 ### Option 2: Building and Running the Application using Gradle
+- Step 0) Ensure you can you use gradle wrapper by running: `gradle wrapper --gradle version 7.0`
 - Step 1) `./gradlew clean`
 - Step 2) `./gradlew build`
 - Step 3) Before running these commands, you must import the `create_school_db.sql` AND  `insert_sample_data.sql`file into your database.
