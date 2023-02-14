@@ -33,7 +33,7 @@ public class Students {
                     //edit
                     break;
                 case "4":
-                    //delete
+                    deleteStudent(conn, scr);
                     break;
                 case "0":
                     //exit to main menu
@@ -132,6 +132,71 @@ public class Students {
                 ps.setString(5, phone);
                 if (ps.executeUpdate() > 0) {
                     System.out.println("Inserted student OK");
+                }
+                ps.clearParameters();
+                ps.close();
+
+                // Have to do this to write changes to a DB
+                conn.commit();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null) 
+                    ps.close();
+                if (psCheckDupe != null)
+                    psCheckDupe.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+
+    }
+
+     /*
+     * Method to delete a new student from the database
+     */
+    public static void deleteStudent(Connection conn, Scanner scr) {
+        PreparedStatement ps = null;
+        PreparedStatement psCheckDupe = null;
+        ResultSet rs = null;
+        int student_id = -1;
+        boolean studentExists = true;
+
+        //get user input
+        System.out.println("Please enter the student's id number: ");
+        while (!scr.hasNextInt()) {
+            System.out.println("Error: That was not a number. Please enter an integer!");
+            scr.next(); 
+        }
+        student_id = scr.nextInt();
+        scr.nextLine(); // consume extra newline
+
+        //check to make sure student exists
+	    try {
+            psCheckDupe = conn.prepareStatement("SELECT * FROM student WHERE student_id = ?");
+            psCheckDupe.setInt(1, student_id);
+            rs = psCheckDupe.executeQuery();
+            //get size of result set
+            int i = 0;
+            while(rs.next()) {
+                i++;
+            }           
+            if (rs == null || i == 0) {
+                //student does not exist
+                System.out.println("Student does not exist! Returning to menu...");
+                studentExists = false;
+                psCheckDupe.clearParameters();
+                psCheckDupe.close();
+            }
+            if (studentExists) {
+                ps = conn.prepareStatement("DELETE FROM student WHERE student_id = ?;");
+                ps.setInt(1, student_id);
+                if (ps.executeUpdate() > 0) {
+                    System.out.println("Removed student OK");
                 }
                 ps.clearParameters();
                 ps.close();
