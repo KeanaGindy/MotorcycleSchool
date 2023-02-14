@@ -54,7 +54,8 @@ public class Main {
                 //validate user input
                 switch (userOpt) {
                     case "1":
-                        Students.showStudentMenu(conn, scr);
+                        Students students = new Students();
+                        students.showStudentMenu(conn, scr);
                         break;
                     case "2":
                         //Instructors

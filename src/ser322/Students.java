@@ -7,13 +7,14 @@ import java.util.Scanner;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 
 public class Students {
 
-    public static void showStudentMenu(Connection conn, Scanner scr) {
+    public void showStudentMenu(Connection conn, Scanner scr) {
         boolean isDone = false;
         
         String userOpt = "-1";
@@ -27,7 +28,7 @@ public class Students {
                     createStudent(conn, scr);
                     break;
                 case "2":
-                    //view
+                    viewStudentOptions(conn, scr);
                     break;
                 case "3":
                     //edit
@@ -49,7 +50,9 @@ public class Students {
     }
     /* Method to display student menu*/
     public static void displayStudentMenu() {
+        System.out.println("-----------------------------------------");
         System.out.println("Manage Students");
+        System.out.println("-----------------------------------------");
         System.out.println("\t1 - Create New Student");
         System.out.println("\t2 - View Students");
         System.out.println("\t3 - Edit Student");
@@ -62,7 +65,7 @@ public class Students {
     /*
      * Method to add a new student to the database
      */
-    public static void createStudent(Connection conn, Scanner scr) {
+    public void createStudent(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
         ResultSet rs = null;
@@ -159,7 +162,7 @@ public class Students {
      /*
      * Method to delete a new student from the database
      */
-    public static void deleteStudent(Connection conn, Scanner scr) {
+    public void deleteStudent(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
         ResultSet rs = null;
@@ -222,17 +225,106 @@ public class Students {
     }
 
     /*
-     * Method to either view all students or view student report based on user input.
+     * Method to ask user which view option they would like.
     */
-    public static void viewStudent(Connection conn, Scanner scr) {
+    public void viewStudentOptions(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
         ResultSet rs = null;
         int student_id = -1;
         boolean studentExists = true;
+        boolean isComplete = false;
+        String userOpt = "-1";
+        do {
+            //ask user if want to view all students of student report
+            System.out.println("-----------------------------------------");
+            System.out.println("View Students Menu");
+            System.out.println("-----------------------------------------");
+            System.out.println("\t1 - View all Students");
+            System.out.println("\t2 - View Student Report");
+            System.out.println("\t0 - Return to Student Menu");
+            System.out.println("Please select a valid menu option (0-2)");
 
-        //ask user if want to view all students of student report
+            userOpt = scr.nextLine();
+            
+            System.out.println("You selected option: " + userOpt);  
+            //validate user input
+            switch (userOpt) {
+                case "1":
+                    viewAllStudents(conn, scr);
+                    break;
+                case "2":
+                    viewStudentReport(conn, scr);
+                    break;
+                case "0":
+                    //exit to main menu
+                    isComplete = true;
+                    System.out.println("Returning to student menu..");
+                    break;
+                default:
+                    //invalid input
+                    System.out.println("Invalid menu option. Please try again with a valid option (0-2).");
+                    break;
+            } 
+        } while(isComplete == false);
+   
+    }
 
+    /*
+     * Method to view all students in db
+    */
+    public void viewAllStudents(Connection conn, Scanner scr) {
+        Statement stmt = null;
+        ResultSet rs = null;
+        System.out.println("Displaying all students: ");
+    
+        //check to make sure student exists
+	    try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * FROM student;");
+            System.out.printf("%-20s %-20s %-20s %-20s %-20s", "student_id", "student_name", "dob", "address", "phone");
+            System.out.println();
+            // Display the results
+			while (rs.next()) {
+                System.out.printf("%-20d",  rs.getInt("student_id"));
+                System.out.printf("%-20s",  rs.getString("student_name"));
+                System.out.printf("%-20s",  rs.getDate("dob"));
+                System.out.printf("%-20s",  rs.getString(4));
+                System.out.printf("%-20s",  rs.getString("phone"));
+                System.out.println();
+			}
+
+            // Have to do this to write changes to a DB
+            conn.commit();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) 
+                    stmt.close();
+                if (rs != null)
+                    rs.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+
+    }
+
+    /*
+     * Method to view a report for a student
+    */
+    public void viewStudentReport(Connection conn, Scanner scr) {
+        PreparedStatement ps = null;
+        PreparedStatement psCheckDupe = null;
+        ResultSet rs = null;
+        ResultSet reportRs = null;
+        int student_id = -1;
+        boolean studentExists = true;
+    
         //get user input
         System.out.println("Please enter the student's id number: ");
         while (!scr.hasNextInt()) {
@@ -260,25 +352,48 @@ public class Students {
                 psCheckDupe.close();
             }
             if (studentExists) {
-                ps = conn.prepareStatement("DELETE FROM student WHERE student_id = ?;");
+                ps = conn.prepareStatement("SELECT * FROM enrolled_in WHERE student_id = ? ORDER BY course_id;");
                 ps.setInt(1, student_id);
-                if (ps.executeUpdate() > 0) {
-                    System.out.println("Removed student OK");
+                reportRs = ps.executeQuery();
+
+                System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s", "course_id", "student_id", "payment", "written_score", "ex1_score","ex2_score","ex3_score", "ex4_score", "ex5_score");
+                System.out.println();
+                // Display the results
+                boolean paymentVal;
+                while (reportRs.next()) {
+                    System.out.printf("%-16d",  reportRs.getInt("course_id"));
+                    System.out.printf("%-16s",  reportRs.getInt("student_id"));
+                    paymentVal = reportRs.getBoolean("is_payment_completed");
+                    if (paymentVal == true) {
+                        System.out.printf("%-16s",  "yes");
+                    } else {
+                        System.out.printf("%-16s",  "no");
+                    }
+                    System.out.printf("%-16d",  reportRs.getInt("written_score"));
+                    System.out.printf("%-16d",  reportRs.getInt("exercise_1_score"));
+                    System.out.printf("%-16d",  reportRs.getInt("exercise_2_score"));
+                    System.out.printf("%-16d",  reportRs.getInt("exercise_3_score"));
+                    System.out.printf("%-16d",  reportRs.getInt("exercise_4_score"));
+                    System.out.printf("%-16d",  reportRs.getInt("exercise_5_score"));
+                    System.out.println();
                 }
+
                 ps.clearParameters();
                 ps.close();
-
                 // Have to do this to write changes to a DB
                 conn.commit();
             }
+            
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
                 if (ps != null) 
                     ps.close();
-                if (psCheckDupe != null)
-                    psCheckDupe.close();
+                if (rs != null)
+                    rs.close();
+                if (reportRs != null)
+                    reportRs.close();
             }
             catch (SQLException se2) {
                 se2.printStackTrace();
@@ -287,4 +402,6 @@ public class Students {
         }
 
     }
+
+
 }
