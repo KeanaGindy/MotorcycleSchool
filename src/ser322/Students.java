@@ -11,9 +11,16 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-
+/* 
+ * Class to manage student data in db. Handles create, update, delete methods for students.
+ * 
+*/
 public class Students {
 
+    /*
+     * Method to display student submenu and get/validate user option. 
+     * Method calls appropriate submenu based on user input.
+     */
     public void showStudentMenu(Connection conn, Scanner scr) {
         boolean isDone = false;
         
@@ -42,13 +49,15 @@ public class Students {
                     System.out.println("Returning to main menu..");
                     break;
                 default:
-                    //invalid input
                     System.out.println("Invalid menu option. Please try again with a valid integer (0-4).");
                     break;
             } 
         } while (isDone == false);
     }
-    /* Method to display student menu*/
+
+    /* 
+     * Method to display student menu.
+    */
     public static void displayStudentMenu() {
         System.out.println("-----------------------------------------");
         System.out.println("Manage Students");
@@ -63,8 +72,8 @@ public class Students {
     }
     
     /*
-     * Method to add a new student to the database
-     */
+     * Method to add a new student to the database.
+    */
     public void createStudent(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
@@ -160,7 +169,7 @@ public class Students {
     }
 
      /*
-     * Method to delete a new student from the database
+     * Method to delete a new student from the database.
      */
     public void deleteStudent(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
@@ -352,9 +361,9 @@ public class Students {
                 ps.setInt(1, student_id);
                 reportRs = ps.executeQuery();
 
+                // Display the results
                 System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s", "course_id", "student_id", "payment", "written_score", "ex1_score","ex2_score","ex3_score", "ex4_score", "ex5_score");
                 System.out.println();
-                // Display the results
                 boolean paymentVal;
                 while (reportRs.next()) {
                     System.out.printf("%-16d",  reportRs.getInt("course_id"));
@@ -399,7 +408,7 @@ public class Students {
 
     }
 
-      /*
+    /*
      * Method to ask user which edit option they would like.
     */
     public void editStudentOptions(Connection conn, Scanner scr) {
@@ -445,7 +454,7 @@ public class Students {
     }
 
     /*
-     * Method to edit a student name based on student id
+     * Method to edit a student name based on student id.
     */
     public void editStudentName(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
@@ -522,7 +531,7 @@ public class Students {
     }
 
     /*
-     * Method to edit a student address based on student id
+     * Method to edit a student address based on student id.
     */
     public void editStudentAddress(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
@@ -599,7 +608,7 @@ public class Students {
     }
 
     /*
-     * Method to edit a student address based on student id
+     * Method to edit a student phone number based on student id.
     */
     public void editStudentPhone(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
