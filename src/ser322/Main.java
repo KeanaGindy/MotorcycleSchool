@@ -72,7 +72,8 @@ public class Main {
                         //Classrooms
                         break;
                     case "6": 
-                        //Bikes
+                        Bike bike = new Bike();
+                        bike.showBikeMenu(conn, scr);
                         break;
                     case "0":
                         //exit program
