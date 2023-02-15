@@ -14,8 +14,8 @@ public class Classrooms extends Option implements OptionProtocol {
         // TODO Auto-generated method stub
 
         do {
-            displayClassroomMenuOptions();
-            userOpt = scr.nextLine();
+            displayMenuOptions();
+            userOpt = scr.next();
             System.out.println("You selected option: " + userOpt);
             // validate user input
             switch (userOpt) {
@@ -26,7 +26,7 @@ public class Classrooms extends Option implements OptionProtocol {
                     view(conn);
                     break;
                 case "3":
-                    // update(conn, scr);
+                    update(conn, scr);
                     break;
                 case "4":
                     delete(conn, scr);
@@ -42,7 +42,9 @@ public class Classrooms extends Option implements OptionProtocol {
 
     }
 
-    public void displayClassroomMenuOptions() {
+    @Override
+    public void displayMenuOptions() {
+        // TODO Auto-generated method stub
         System.out.println("Manage Classrooms");
         System.out.println("\t1 - Create New Classroom");
         System.out.println("\t2 - View Classroom");
@@ -51,11 +53,6 @@ public class Classrooms extends Option implements OptionProtocol {
         System.out.println("\t0 - Return to Main Menu");
 
         System.out.println("Please select a valid menu option (0-4)");
-    }
-
-    @Override
-    public void displayMenuOptions() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -77,7 +74,6 @@ public class Classrooms extends Option implements OptionProtocol {
 
     @Override
     public void create(Connection conn, Scanner scr) {
-        // TODO Auto-generated method stub
 
         // Input Store Variables
         String _classroom_id = null;
@@ -124,15 +120,15 @@ public class Classrooms extends Option implements OptionProtocol {
             } else {
                 System.out.println("Failed to add range to DB");
             }
-            try {
-                // Ensure Statement is Closed
-                if (ps != null) {
-                    ps.close();
-                }
-            } catch (SQLException se2) {
-                se2.printStackTrace();
-                System.out.println("Not all DB resources freed!");
-            }
+            // try {
+            //     // Ensure Statement is Closed
+            //     if (ps != null) {
+            //         ps.close();
+            //     }
+            // } catch (SQLException se2) {
+            //     se2.printStackTrace();
+            //     System.out.println("Not all DB resources freed!");
+            // }
         }
     }
 
@@ -160,6 +156,33 @@ public class Classrooms extends Option implements OptionProtocol {
         } else {
             System.out.println("No records found to delete.");
         }
+    }
 
+    public void update(Connection conn, Scanner scr) {
+        // Input Store Variables
+        String _pk = null;
+        Integer _newCapacity = null;
+
+        PreparedStatement ps = null;
+
+        System.out.println("Enter ID of classroom you'd like to update:");
+        _pk = scr.next();
+        System.out.println("Enter new classroom max capacity: ");
+        _newCapacity = scr.nextInt();
+
+        String updateStmt = "UPDATE classroom_location SET max_capacity = ? WHERE classroom_id = ?;";
+        try {
+            ps = conn.prepareStatement(updateStmt);
+            ps.setInt(1, _newCapacity);
+            ps.setString(2, _pk);
+            
+            if (updateDB(ps, conn)) {
+                System.out.println("Record updated successfully.");
+            } else {
+                System.out.println("No records found to update.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
