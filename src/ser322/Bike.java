@@ -225,7 +225,7 @@ public class Bike {
         vin = scr.next();
         scr.nextLine(); // consume extra newline
 
-        //check to make sure student exists
+        //check to make sure bike exists
 	    try {
             psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
             psCheckDupe.setString(1, vin);
@@ -236,7 +236,7 @@ public class Bike {
                 i++;
             }           
             if (rs == null || i == 0) {
-                //student does not exist
+                //bike does not exist
                 System.out.println("Bike does not exist! Returning to menu...");
                 bikeExists = false;
                 psCheckDupe.clearParameters();
@@ -280,7 +280,7 @@ public class Bike {
         boolean isComplete = false;
         String userOpt = "-1";
         do {
-            //ask user if want to view all students of student report
+            //ask user how they want to see the bikes
             System.out.println("-----------------------------------------");
             System.out.println("View Bike Menu");
             System.out.println("-----------------------------------------");
@@ -335,7 +335,7 @@ public class Bike {
         ResultSet rs = null;
         System.out.println("Displaying all street type bikes: ");
     
-        //check to make sure student exists
+        //check to make sure bike exists
 	    try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM bike WHERE bike_type = 'street';");
@@ -382,7 +382,7 @@ public class Bike {
         ResultSet rs = null;
         System.out.println("Displaying all street type bikes: ");
     
-        //check to make sure student exists
+        //check to make sure bike exists
 	    try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM bike WHERE bike_type = 'dirt';");
@@ -447,6 +447,44 @@ public class Bike {
             try {
                 if (ps != null) 
                     ps.close();
+                if (rs != null)
+                    rs.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+    }
+
+    public void viewBikeRepair(Connection conn, Scanner scr) {
+        Statement stmt = null;
+        ResultSet rs = null;
+        System.out.println("Displaying all bikes in repair: ");
+    
+	    try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT bike.vin, bike.bike_type, repair_bike.problem_date, repair_bike.problem_description FROM repair_bike INNER JOIN bike ON bike.vin = repair_bike.vin;");
+            System.out.printf("%-20s %-20s %-20s %-20s %-20s", "vin", "bike_type", "problem_date", "problem_description");
+            System.out.println();
+            // Display the results
+			while (rs.next()) {
+                System.out.printf("%-20s",  rs.getString("vin"));
+                System.out.printf("%-20s",  rs.getString("bike_type"));
+                System.out.printf("%-20s",  rs.getDate("problem_date"));
+                System.out.printf("%-20s",  rs.getString("problem_description"));
+                System.out.println();
+			}
+
+            // Have to do this to write changes to a DB
+            conn.commit();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) 
+                    stmt.close();
                 if (rs != null)
                     rs.close();
             }
