@@ -464,7 +464,7 @@ public class Bike {
     
 	    try {
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT bike.vin, bike.bike_type, repair_bike.problem_date, repair_bike.problem_description FROM repair_bike INNER JOIN bike ON bike.vin = repair_bike.vin;");
+            rs = stmt.executeQuery("SELECT bike.vin, bike.bike_type, repair_bike.problem_date, repair_bike.problem_description FROM repair_bike INNER JOIN bike ON bike.vin = repair_bike.vin WHERE repair_bike.repair_date IS NULL OR repair_bike.repair_date > CURDATE();");
             System.out.printf("%-20s %-20s %-20s", "vin", "bike_type", "problem_date", "problem_description");
             System.out.println();
             // Display the results
