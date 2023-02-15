@@ -70,6 +70,8 @@ public class Main {
                         break;
                     case "5":
                         //Classrooms
+                        Classrooms classrooms = new Classrooms();
+                        classrooms.openMenu(conn, scr);
                         break;
                     case "6": 
                         //Bikes
