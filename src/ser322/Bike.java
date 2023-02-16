@@ -26,8 +26,8 @@ public class Bike {
 
     /**
      * Method to show user the manage bike menu
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void showBikeMenu(Connection conn, Scanner scr) {
         boolean isDone = false;
@@ -84,8 +84,8 @@ public class Bike {
     
     /**
      * Method to add a new bike to the database
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void addBike(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
@@ -210,8 +210,8 @@ public class Bike {
 
     /**
      * Method to delete a bike from the database by vin
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void removeBike(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
@@ -273,8 +273,8 @@ public class Bike {
 
     /**
      * Method to ask user which bike view option they would like
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void viewBikes(Connection conn, Scanner scr) {
         boolean isComplete = false;
@@ -327,8 +327,8 @@ public class Bike {
 
     /**
      * Method to view all street bikes
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void viewStreetBikes(Connection conn, Scanner scr) {
         Statement stmt = null;
@@ -374,8 +374,8 @@ public class Bike {
 
     /**
      * Method to view all dirt bikes
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void viewDirtBikes(Connection conn, Scanner scr) {
         Statement stmt = null;
@@ -418,6 +418,11 @@ public class Bike {
         }
     }
 
+    /**
+     * Method to view all bikes available on a certain date 
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
+     */
     public void viewBikeAvailability(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -457,6 +462,11 @@ public class Bike {
         }
     }
 
+    /**
+     * Method to view bikes in repair
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
+     */
     public void viewBikeRepair(Connection conn, Scanner scr) {
         Statement stmt = null;
         ResultSet rs = null;
@@ -495,79 +505,84 @@ public class Bike {
         }
     }
 
-        public void viewBikeHistory(Connection conn, Scanner scr) {
-        PreparedStatement ps = null;
-        PreparedStatement psCheckDupe = null;
-        ResultSet rs = null;
-        String vin = "";
-        boolean bikeExists = true;
 
-        //get user input
-        System.out.println("Please enter the bike's vin: ");
-        vin = scr.next();
-        scr.nextLine(); // consume extra newline
+    /**
+     * Method to view a bike's history
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
+     */
+    public void viewBikeHistory(Connection conn, Scanner scr) {
+    PreparedStatement ps = null;
+    PreparedStatement psCheckDupe = null;
+    ResultSet rs = null;
+    String vin = "";
+    boolean bikeExists = true;
 
-        //check to make sure bike exists
-	    try {
-            psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-            psCheckDupe.setString(1, vin);
-            rs = psCheckDupe.executeQuery();
-            //get size of result set
-            int i = 0;
-            while(rs.next()) {
-                i++;
-            }           
-            if (rs == null || i == 0) {
-                //bike does not exist
-                System.out.println("Bike does not exist! Returning to menu...");
-                bikeExists = false;
-                psCheckDupe.clearParameters();
-                psCheckDupe.close();
-            }
-            if (bikeExists) {
-                ps = conn.prepareStatement("SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date FROM bike LEFT JOIN repair_bike ON bike.vin = repair_bike.vin LEFT JOIN assigned_to ON bike.vin = assigned_to.vin LEFT JOIN course ON assigned_to.course_id = course.course_id WHERE bike.vin = ? LIMIT 0, 500;");
-                ps.setString(1, vin);
-                rs = ps.executeQuery();
-                System.out.println("Displaying the history of the bike requested: ");
-                System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s", "vin", "bike_type", "repair_status", "problem_date", "problem_description", "repair_date", "course_id", "course_date");
+    //get user input
+    System.out.println("Please enter the bike's vin: ");
+    vin = scr.next();
+    scr.nextLine(); // consume extra newline
+
+    //check to make sure bike exists
+	try {
+        psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
+        psCheckDupe.setString(1, vin);
+        rs = psCheckDupe.executeQuery();
+        //get size of result set
+        int i = 0;
+        while(rs.next()) {
+            i++;
+        }           
+        if (rs == null || i == 0) {
+            //bike does not exist
+            System.out.println("Bike does not exist! Returning to menu...");
+            bikeExists = false;
+            psCheckDupe.clearParameters();
+            psCheckDupe.close();
+        }
+        if (bikeExists) {
+            ps = conn.prepareStatement("SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date FROM bike LEFT JOIN repair_bike ON bike.vin = repair_bike.vin LEFT JOIN assigned_to ON bike.vin = assigned_to.vin LEFT JOIN course ON assigned_to.course_id = course.course_id WHERE bike.vin = ? LIMIT 0, 500;");
+            ps.setString(1, vin);
+            rs = ps.executeQuery();
+            System.out.println("Displaying the history of the bike requested: ");
+            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s", "vin", "bike_type", "repair_status", "problem_date", "problem_description", "repair_date", "course_id", "course_date");
+            System.out.println();
+            // Display the results
+            while (rs.next()) {
+                System.out.printf("%-20s",  rs.getString("vin"));
+                System.out.printf("%-20s",  rs.getString("bike_type"));
+                System.out.printf("%-20s",  rs.getBoolean("repair_status"));
+                System.out.printf("%-20s",  rs.getDate("problem_date"));
+                System.out.printf("%-20s",  rs.getString("problem_description"));
+                System.out.printf("%-20s",  rs.getDate("repair_date"));
+                System.out.printf("%-20s",  rs.getInt("course_id"));
+                System.out.printf("%-20s",  rs.getDate("course_date"));
                 System.out.println();
-                // Display the results
-                while (rs.next()) {
-                    System.out.printf("%-20s",  rs.getString("vin"));
-                    System.out.printf("%-20s",  rs.getString("bike_type"));
-                    System.out.printf("%-20s",  rs.getBoolean("repair_status"));
-                    System.out.printf("%-20s",  rs.getDate("problem_date"));
-                    System.out.printf("%-20s",  rs.getString("problem_description"));
-                    System.out.printf("%-20s",  rs.getDate("repair_date"));
-                    System.out.printf("%-20s",  rs.getInt("course_id"));
-                    System.out.printf("%-20s",  rs.getDate("course_date"));
-                    System.out.println();
-                }
-                ps.clearParameters();
-                ps.close();
+            }
+            ps.clearParameters();
+            ps.close();
 
-                conn.commit();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (ps != null) 
-                    ps.close();
-                if (psCheckDupe != null)
-                    psCheckDupe.close();
-            }
-            catch (SQLException se2) {
+            conn.commit();
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (ps != null) 
+                ps.close();
+            if (psCheckDupe != null)
+                psCheckDupe.close();
+            } catch (SQLException se2) {
                 se2.printStackTrace();
                 System.out.println("Not all DB resources freed!");
-            }
+                }
         }
     }
 
     /**
      * Method to ask user which edit option they would like
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void editBike(Connection conn, Scanner scr) {
         boolean isComplete = false;
@@ -607,7 +622,7 @@ public class Bike {
 
     /**
      * Method to edit bike's license plate number
-     * @param conn
+     * @param conn the connection the the
      * @param scr
      */
     private void editBikeLicensePlate(Connection conn, Scanner scr) {
@@ -670,9 +685,9 @@ public class Bike {
     }
 
     /**
-     * Method to edit bike's current repair status
-     * @param conn
-     * @param scr
+     * Method to edit a bike's repair status
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     private void editBikeRepairStatus(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
@@ -752,8 +767,8 @@ public class Bike {
 
     /**
      * Method to add a new bike repair entry
-     * @param conn
-     * @param scr
+     * @param conn the connection to the database
+     * @param scr the Scanner object to read user input
      */
     public void addBikeRepair(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
