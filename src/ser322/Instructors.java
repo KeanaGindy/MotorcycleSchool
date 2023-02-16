@@ -424,10 +424,10 @@ public class Instructors {
                     System.out.printf("%-16d",  reportRs.getInt("instructor_id"));
                     System.out.printf("%-16s",  reportRs.getString("instructor_name"));
                     System.out.printf("%-16d",  reportRs.getInt("course_id"));
-                    System.out.printf("%-16d",  reportRs.getString("course_name"));
-                    System.out.printf("%-16d",  reportRs.getString("course_type"));
-                    System.out.printf("%-16d",  reportRs.getDate("course_date"));
-                    System.out.printf("%-16d",  reportRs.getString("s.in_session"));
+                    System.out.printf("%-16s",  reportRs.getString("course_name"));
+                    System.out.printf("%-16s",  reportRs.getString("course_type"));
+                    System.out.printf("%-16s",  reportRs.getDate("course_date"));
+                    System.out.printf("%-16s",  reportRs.getString("s.in_session"));
                     System.out.println();
                 }
 
