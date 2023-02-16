@@ -15,7 +15,6 @@ public class Classrooms extends Option implements OptionProtocol {
 
     @Override
     public void openMenu(Connection conn, Scanner scr) {
-        // TODO Auto-generated method stub
 
         do {
             displayMenuOptions();
@@ -75,7 +74,6 @@ public class Classrooms extends Option implements OptionProtocol {
 
     @Override
     public void view(Connection conn) {
-        // TODO Auto-generated method stub
 
         Scanner scr = new Scanner(System.in);
 
@@ -102,7 +100,6 @@ public class Classrooms extends Option implements OptionProtocol {
                     break;
             }
         } while (isDone == false);
-
     }
 
     public void viewAllClassroom(Connection conn) {
@@ -123,7 +120,8 @@ public class Classrooms extends Option implements OptionProtocol {
         ResultSet rs = null;
         Scanner scr = new Scanner(System.in);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        System.out.println("Please enter the student's date of birth (format: `YYYY-MM-DD`): ");
+        System.out.println(
+                "Please enter the specific date for available seats in each classroom(format: `YYYY-MM-DD`): ");
         String dob_str = "";
         dob_str = scr.nextLine();
 
@@ -149,7 +147,7 @@ public class Classrooms extends Option implements OptionProtocol {
         ResultSet rs = null;
         Scanner scr = new Scanner(System.in);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        System.out.println("Please enter the student's date of birth (format: `YYYY-MM-DD`): ");
+        System.out.println("Please enter the specific date for available classroom (format: `YYYY-MM-DD`): ");
         String dob_str = "";
         dob_str = scr.nextLine();
 
@@ -200,7 +198,7 @@ public class Classrooms extends Option implements OptionProtocol {
 
         // Return if Duplicate Found
         if (duplicate) {
-            System.out.println("\nDUPLICATE ENTRY:: Range with provided ID already exists. Returning to menu.\n");
+            System.out.println("\nDUPLICATE ENTRY:: Classroom with provided ID already exists. Returning to menu.\n");
             return;
         }
 
@@ -214,9 +212,9 @@ public class Classrooms extends Option implements OptionProtocol {
             e.printStackTrace();
         } finally {
             if (updateDB(ps, conn)) {
-                System.out.println("Successfully added range to DB");
+                System.out.println("Successfully added classroom to DB");
             } else {
-                System.out.println("Failed to add range to DB");
+                System.out.println("Failed to add classroom to DB");
             }
             // try {
             // // Ensure Statement is Closed
@@ -237,7 +235,7 @@ public class Classrooms extends Option implements OptionProtocol {
 
         PreparedStatement ps = null;
 
-        System.out.println("Enter classroom to delete: pk(classroom_id):");
+        System.out.println("Enter classroom to delete: (classroom_id):");
         _pk = scr.next();
 
         String deleteStmt = "DELETE FROM classroom_location WHERE classroom_id = ?";
