@@ -50,7 +50,7 @@ public class Classrooms extends Option implements OptionProtocol {
         // TODO Auto-generated method stub
         System.out.println("-----------------------------------------");
         System.out.println("Manage Classrooms");
-        System.out.println("-----------------------------------------");0
+        System.out.println("-----------------------------------------");
         System.out.println("\t1 - Create New Classroom");
         System.out.println("\t2 - View Classroom");
         System.out.println("\t3 - Edit Classroom");
@@ -103,6 +103,10 @@ public class Classrooms extends Option implements OptionProtocol {
     }
 
     public void viewAllClassroom(Connection conn) {
+
+        System.out.println("-----------------------------------------");
+        System.out.println("View All Classroom");
+        System.out.println("-----------------------------------------");
         String queryStmt = "SELECT * from classroom_location";
 
         try {
@@ -115,6 +119,10 @@ public class Classrooms extends Option implements OptionProtocol {
     }
 
     public void viewAvailableSeats(Connection conn) {
+
+        System.out.println("-----------------------------------------");
+        System.out.println("View Avaialble Seats in Given Day");
+        System.out.println("-----------------------------------------");
         PreparedStatement preStat = null;
         java.sql.Date classDate = null;
         ResultSet rs = null;
@@ -137,11 +145,13 @@ public class Classrooms extends Option implements OptionProtocol {
             e.printStackTrace();
         } catch (ParseException e) {
             System.out.println("Date was not in correct format");
-            e.printStackTrace();
         }
     }
 
     public void viewAvailableClassroom(Connection conn) {
+        System.out.println("-----------------------------------------");
+        System.out.println("View Avaialble Classroom in Given Day");
+        System.out.println("-----------------------------------------");
         PreparedStatement preStat = null;
         java.sql.Date classDate = null;
         ResultSet rs = null;
@@ -164,7 +174,6 @@ public class Classrooms extends Option implements OptionProtocol {
             e.printStackTrace();
         } catch (ParseException e) {
             System.out.println("Date was not in correct format");
-            e.printStackTrace();
         }
     }
 
