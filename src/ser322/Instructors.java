@@ -420,16 +420,9 @@ public class Instructors {
                 // Display the results
                 System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s %-15s", "instructor_id", "instructor_name", "course_id", "course_name", "course_type","course_date","s.in_session");
                 System.out.println();
-                boolean paymentVal;
                 while (reportRs.next()) {
                     System.out.printf("%-16d",  reportRs.getInt("instructor_id"));
                     System.out.printf("%-16s",  reportRs.getString("instructor_name"));
-                    paymentVal = reportRs.getBoolean("is_payment_completed");
-                    if (paymentVal == true) {
-                        System.out.printf("%-16s",  "yes");
-                    } else {
-                        System.out.printf("%-16s",  "no");
-                    }
                     System.out.printf("%-16d",  reportRs.getInt("course_id"));
                     System.out.printf("%-16d",  reportRs.getString("course_name"));
                     System.out.printf("%-16d",  reportRs.getString("course_type"));
