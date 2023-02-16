@@ -58,7 +58,8 @@ public class Main {
                         students.showStudentMenu(conn, scr);
                         break;
                     case "2":
-                        //Instructors
+                        Instructors instructors = new Instructors();
+                        instructors.showInstructorMenu(conn, scr);
                         break;
                     case "3":
                         Course course = new Course();
