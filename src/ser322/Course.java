@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
+import java.sql.Date;
 
 public class Course extends Option implements OptionProtocol {
+    boolean isEditing = false;
 
     public void openMenu(Connection conn, Scanner scr) {
         do {
@@ -23,7 +25,7 @@ public class Course extends Option implements OptionProtocol {
                     view(conn, scr);
                     break;
                 case "3":
-                    // edit
+                    edit(conn, scr);
                     break;
                 case "4":
                     delete(conn, scr);
@@ -48,6 +50,20 @@ public class Course extends Option implements OptionProtocol {
         System.out.println("Please select a valid menu option (0-4)");
     }
 
+    public void displayEditOptions() {
+        System.out.println("Courses: Edit Options");
+        System.out.println("\t1 - Date");
+        System.out.println("\t2 - Payment Record");
+        System.out.println("\t3 - Written Test Score");
+        System.out.println("\t4 - Exercise 1 Score");
+        System.out.println("\t5 - Exercise 2 Score");
+        System.out.println("\t6 - Exercise 3 Score");
+        System.out.println("\t7 - Exercise 4 Score");
+        System.out.println("\t8 - Exercise 5 Score");
+        System.out.println("\t0 - Back to Ranges Menu");
+        System.out.println("Please select a valid menu option (0-3)");
+    }
+
     public void view(Connection conn, Scanner scr) {
         String queryStmt = "SELECT * from course";
         try {
@@ -56,6 +72,135 @@ public class Course extends Option implements OptionProtocol {
             viewDB(rs);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void edit(Connection conn, Scanner scr) {
+        isEditing = true;
+
+        do {
+
+            displayEditOptions();
+            userOpt = scr.nextLine();
+
+            switch (userOpt) {
+                case "1":
+                    // date
+                    handleDateUpdate(conn, scr);
+                    break;
+                case "2":
+                    // payment record
+                    handlePaymentUpdate(conn, scr);
+                    break;
+                case "3":
+                    // written score
+                    handleScoreUpdate(conn, scr, 0);
+                    break;
+                case "4":
+                    // exercise score
+                    handleScoreUpdate(conn, scr, 1);
+                    break;
+                case "5":
+                    // exercise score
+                    handleScoreUpdate(conn, scr, 2);
+                    break;
+                case "6":
+                    // exercise score
+                    handleScoreUpdate(conn, scr, 3);
+                    break;
+                case "7":
+                    // exercise score
+                    handleScoreUpdate(conn, scr, 4);
+                    break;
+                case "8":
+                    // exercise score
+                    handleScoreUpdate(conn, scr, 5);
+                    break;
+                case "0":
+                    isEditing = false;
+                    break;
+                default:
+                    invalidInput("4");
+                    break;
+            }
+
+        } while (isEditing);
+    }
+
+    private void handleDateUpdate(Connection conn, Scanner scr) {
+
+        PreparedStatement ps = UpdateType.date.getPreparedStatement(conn);
+
+        int _courseId = promptCourseId(scr);
+
+        System.out.print("Enter new date: (YYYY-MM-DD)\n");
+        String _dateStr = scr.next();
+        java.sql.Date date = parseDate(_dateStr);
+
+        try {
+            ps.setDate(1, date);
+            ps.setInt(2, _courseId);
+            updateDB(ps, conn);
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
+    private void handlePaymentUpdate(Connection conn, Scanner scr) {
+        PreparedStatement ps = UpdateType.paymentRecord.getPreparedStatement(conn);
+
+        int _studentId = promptStudentId(scr);
+        int _courseId = promptCourseId(scr);
+
+        System.out.println("Enter payment status: (1 == paid, 0 == unpaid)");
+        int _paymentComplete = scr.nextInt();
+
+        try {
+            ps.setInt(1, _paymentComplete);
+            ps.setInt(2, _studentId);
+            ps.setInt(3, _courseId);
+            updateDB(ps, conn);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
+    private void handleScoreUpdate(Connection conn, Scanner scr, int ex) {
+        PreparedStatement ps = null;
+
+        switch (ex) {
+            case 1:
+                ps = UpdateType.exerciseScore1.getPreparedStatement(conn);
+                break;
+            case 2:
+                ps = UpdateType.exerciseScore2.getPreparedStatement(conn);
+                break;
+            case 3:
+                ps = UpdateType.exerciseScore3.getPreparedStatement(conn);
+                break;
+            case 4:
+                ps = UpdateType.exerciseScore4.getPreparedStatement(conn);
+                break;
+            case 5:
+                ps = UpdateType.exerciseScore5.getPreparedStatement(conn);
+                break;
+            default:
+                ps = UpdateType.writtenScore.getPreparedStatement(conn);
+        }
+
+        int _studentId = promptStudentId(scr);
+        int _courseId = promptCourseId(scr);
+        int _newScore = promptNewScore(scr);
+
+        try {
+            ps.setInt(1, _newScore);
+            ps.setInt(2, _studentId);
+            ps.setInt(3, _courseId);
+            updateDB(ps, conn);
+        } catch (Exception e) {
+            // TODO: handle exception
         }
     }
 
@@ -102,6 +247,21 @@ public class Course extends Option implements OptionProtocol {
             addInstructors(conn, scr, cm.course_id, RangeType.dirt, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
         }
+    }
+
+    private int promptStudentId(Scanner scr) {
+        System.out.println("Enter student ID:");
+        return scr.nextInt();
+    }
+
+    private int promptCourseId(Scanner scr) {
+        System.out.println("Enter course ID:");
+        return scr.nextInt();
+    }
+
+    private int promptNewScore(Scanner scr) {
+        System.out.println("Enter new score:");
+        return scr.nextInt();
     }
 
     // HELPER METHODS
@@ -218,11 +378,11 @@ public class Course extends Option implements OptionProtocol {
         PreparedStatement psdc = null;
         boolean duplicate = false;
 
-        System.out.print("Enter course id: \n");
+        System.out.println("Enter course id:");
         cm.course_id = scr.nextInt();
-        System.out.print("Enter course name: \n");
+        System.out.println("Enter course name:");
         cm.course_name = scr.next();
-        System.out.print("Enter course description: \n");
+        System.out.println("Enter course description:");
         cm.course_description = scr.nextLine();
         System.out.print("Enter course date: (YYYY-MM-DD) \n");
         String _dateStr = scr.nextLine();
@@ -279,6 +439,37 @@ public class Course extends Option implements OptionProtocol {
     }
 
     // MODELS
+
+    enum UpdateType {
+        date("UPDATE course SET course_date = ? WHERE course_id = ?;"),
+        paymentRecord("UPDATE enrolled_in SET is_payment_completed = ? WHERE student_id = ? AND course_id = ?;"),
+        writtenScore("UPDATE enrolled_in SET written_score = ? WHERE student_id = ? AND course_id = ?;"),
+        exerciseScore1("UPDATE enrolled_in SET exercise_1_score = ? WHERE student_id = ? AND course_id = ?;"),
+        exerciseScore2("UPDATE enrolled_in SET exercise_2_score = ? WHERE student_id = ? AND course_id = ?;"),
+        exerciseScore3("UPDATE enrolled_in SET exercise_3_score = ? WHERE student_id = ? AND course_id = ?;"),
+        exerciseScore4("UPDATE enrolled_in SET exercise_4_score = ? WHERE student_id = ? AND course_id = ?;"),
+        exerciseScore5("UPDATE enrolled_in SET exercise_5_score = ? WHERE student_id = ? AND course_id = ?;");
+
+        private final String query;
+
+        private UpdateType(String query) {
+            this.query = query;
+        }
+
+        public String getQuery() {
+            return this.query;
+        }
+
+        public PreparedStatement getPreparedStatement(Connection conn) {
+            PreparedStatement _ps = null;
+            try {
+                _ps = conn.prepareStatement(this.query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return _ps;
+        }
+    }
 
     class InstructorModel {
         int instructor_id;
