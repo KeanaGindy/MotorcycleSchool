@@ -12,12 +12,12 @@ public class Ranges extends Option implements OptionProtocol {
     boolean isUpdate = false;
 
     public void openMenu(Connection conn, Scanner scr) {
-        
+
         do {
             displayMenuOptions();
             userOpt = scr.nextLine();
-            System.out.println("You selected option: " + userOpt);  
-            //validate user input
+            System.out.println("You selected option: " + userOpt);
+            // validate user input
             switch (userOpt) {
                 case "1":
                     create(conn, scr);
@@ -37,7 +37,7 @@ public class Ranges extends Option implements OptionProtocol {
                 default:
                     invalidInput("4");
                     break;
-            } 
+            }
         } while (isDone == false);
     }
 
@@ -66,7 +66,7 @@ public class Ranges extends Option implements OptionProtocol {
                     invalidInput("3");
                     break;
             }
-        } while (isView == true);        
+        } while (isView == true);
     }
 
     public void update(Connection conn, Scanner scr) {
@@ -74,6 +74,7 @@ public class Ranges extends Option implements OptionProtocol {
         do {
             displayUpdateOptions();
             userOpt = scr.nextLine();
+
             System.out.println("You selected option: " + userOpt);
 
             switch (userOpt) {
@@ -100,8 +101,8 @@ public class Ranges extends Option implements OptionProtocol {
         PreparedStatement ps = vt.getPreparedStatement(conn);
         ResultSet rs = null;
         java.sql.Date _date = null;
-        if(vt != ViewType.all) {
-        System.out.println("Enter in a date: (YYYY-MM-DD)");
+        if (vt != ViewType.all) {
+            System.out.println("Enter in a date: (YYYY-MM-DD)");
             String _dateStr = scr.nextLine();
             _date = parseDate(_dateStr);
         }
@@ -119,7 +120,7 @@ public class Ranges extends Option implements OptionProtocol {
                     break;
             }
             rs = ps.executeQuery();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -135,27 +136,30 @@ public class Ranges extends Option implements OptionProtocol {
 
         System.out.println("Enter ID of the range you'd like to update:");
         _rangeId = scr.nextInt();
+        consumeNewLine(scr);
 
         try {
             ps = ut.getPreparedStatement(conn);
             ps.setInt(2, _rangeId);
-            switch(ut) {
+            switch (ut) {
                 case capacity:
                     System.out.println("Enter the new capacity:");
                     _newCapacity = scr.nextInt();
+                    consumeNewLine(scr);
                     ps.setInt(1, _newCapacity);
                     break;
                 case type:
                     System.out.println("Enter the new type:");
-                    _newType = scr.next();
+                    _newType = scr.nextLine();
+
                     ps.setString(1, _newType);
                     break;
             }
-             if (updateDB(ps, conn)) {
+            if (updateDB(ps, conn)) {
                 System.out.println("Ranges table updated successfuly.");
-             } else {
+            } else {
                 System.out.println("Failed to update Ranges table.");
-             }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -166,9 +170,10 @@ public class Ranges extends Option implements OptionProtocol {
         Integer _pk = null;
 
         PreparedStatement ps = null;
-        
+
         System.out.println("Enter range to delete: pk(range_id):");
         _pk = scr.nextInt();
+        consumeNewLine(scr);
 
         String deleteStmt = "DELETE FROM range_location WHERE range_id = ?";
         try {
@@ -200,13 +205,13 @@ public class Ranges extends Option implements OptionProtocol {
         // Prompt for Input
         System.out.print("Enter range id: \n");
         _rangeId = scr.nextInt();
+        consumeNewLine(scr);
         System.out.print("Enter range type: \n");
-        scr.nextLine();
         _rangeType = scr.nextLine();
         System.out.print("Enter max capacity: \n");
         _maxCapacity = scr.nextInt();
+        consumeNewLine(scr);
 
-  
         // Check for Duplicate
         String lookupStmt = "SELECT * FROM range_location WHERE range_id = ?";
         try {
@@ -218,7 +223,7 @@ public class Ranges extends Option implements OptionProtocol {
         }
 
         // Return if Duplicate Found
-        if ( duplicate ) {
+        if (duplicate) {
             System.out.println("\nDUPLICATE ENTRY:: Range with provided ID already exists. Returning to menu.\n");
             return;
         }
@@ -243,8 +248,7 @@ public class Ranges extends Option implements OptionProtocol {
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException se2) {
+            } catch (SQLException se2) {
                 se2.printStackTrace();
                 System.out.println("Not all DB resources freed!");
             }
@@ -283,7 +287,8 @@ public class Ranges extends Option implements OptionProtocol {
     // MODELS
 
     enum ViewType {
-        available("SELECT range_location.range_id, range_location.range_type, uses.in_session, (range_location.max_capacity - (SELECT COUNT(*) FROM enrolled_in JOIN course ON enrolled_in.course_id = course.course_id JOIN uses ON course.course_id = uses.course_id WHERE uses.range_id = range_location.range_id AND course.course_date = ?)) AS availability FROM range_location JOIN uses ON range_location.range_id = uses.range_id"),
+        available(
+                "SELECT range_location.range_id, range_location.range_type, uses.in_session, (range_location.max_capacity - (SELECT COUNT(*) FROM enrolled_in JOIN course ON enrolled_in.course_id = course.course_id JOIN uses ON course.course_id = uses.course_id WHERE uses.range_id = range_location.range_id AND course.course_date = ?)) AS availability FROM range_location JOIN uses ON range_location.range_id = uses.range_id"),
         all("SELECT * from range_location;"),
         report("SELECT range_location.range_id, CASE WHEN sub_query.session_count = 1 THEN (SELECT CASE in_session WHEN 'AM' THEN 'PM' WHEN 'PM' THEN 'AM' ELSE 'NONE' END FROM uses WHERE uses.range_id = range_location.range_id AND uses.course_id IN (SELECT course.course_id FROM course WHERE course.course_date = ?) LIMIT 1) WHEN sub_query.session_count = 2 THEN 'NONE' ELSE 'AM & PM' END as session_available FROM range_location LEFT JOIN (SELECT uses.range_id, COUNT(uses.in_session) as session_count FROM uses JOIN course ON uses.course_id = course.course_id AND course.course_date = ? GROUP BY uses.range_id) sub_query ON range_location.range_id = sub_query.range_id LIMIT 0, 500");
 
@@ -301,7 +306,7 @@ public class Ranges extends Option implements OptionProtocol {
             PreparedStatement _ps = null;
             try {
                 _ps = conn.prepareStatement(this.query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return _ps;
@@ -319,7 +324,6 @@ public class Ranges extends Option implements OptionProtocol {
             this.query = query;
         }
 
-
         public String getQuery() {
             return this.query;
         }
@@ -328,7 +332,7 @@ public class Ranges extends Option implements OptionProtocol {
             PreparedStatement _ps = null;
             try {
                 _ps = conn.prepareStatement(this.query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return _ps;

@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
-import java.sql.Date;
 
 public class Course extends Option implements OptionProtocol {
     boolean isEditing = false;
@@ -15,6 +14,7 @@ public class Course extends Option implements OptionProtocol {
         do {
             displayMenuOptions();
             userOpt = scr.nextLine();
+
             System.out.println("You selected option: " + userOpt);
             // validate user input
             switch (userOpt) {
@@ -60,7 +60,7 @@ public class Course extends Option implements OptionProtocol {
         System.out.println("\t6 - Exercise 3 Score");
         System.out.println("\t7 - Exercise 4 Score");
         System.out.println("\t8 - Exercise 5 Score");
-        System.out.println("\t0 - Back to Ranges Menu");
+        System.out.println("\t0 - Back to Courses Menu");
         System.out.println("Please select a valid menu option (0-3)");
     }
 
@@ -82,7 +82,7 @@ public class Course extends Option implements OptionProtocol {
 
             displayEditOptions();
             userOpt = scr.nextLine();
-
+            
             switch (userOpt) {
                 case "1":
                     // date
@@ -134,7 +134,7 @@ public class Course extends Option implements OptionProtocol {
         int _courseId = promptCourseId(scr);
 
         System.out.print("Enter new date: (YYYY-MM-DD)\n");
-        String _dateStr = scr.next();
+        String _dateStr = scr.nextLine();
         java.sql.Date date = parseDate(_dateStr);
 
         try {
@@ -156,6 +156,7 @@ public class Course extends Option implements OptionProtocol {
 
         System.out.println("Enter payment status: (1 == paid, 0 == unpaid)");
         int _paymentComplete = scr.nextInt();
+        consumeNewLine(scr);
 
         try {
             ps.setInt(1, _paymentComplete);
@@ -212,6 +213,7 @@ public class Course extends Option implements OptionProtocol {
 
         System.out.println("Enter course to delete: pk(course_id):");
         _pk = scr.nextInt();
+        consumeNewLine(scr);
 
         String deleteStmt = "DELETE FROM course WHERE course_id = ?";
         try {
@@ -238,12 +240,14 @@ public class Course extends Option implements OptionProtocol {
             System.out.println("\n##### " + "Creating new Street Course \n");
             System.out.println("Enter the number students you'd like to add to this course: (max 30)");
             _numStudents = scr.nextInt();
+            consumeNewLine(scr);
             addInstructors(conn, scr, cm.course_id, RangeType.street, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
         } else if (cm.course_type.toLowerCase().equals("dirt")) {
             System.out.println("\n##### " + "Creating new Dirt Course \n");
             System.out.println("Enter the number students you'd like to add to this course: (max 15)");
             _numStudents = scr.nextInt();
+            consumeNewLine(scr);
             addInstructors(conn, scr, cm.course_id, RangeType.dirt, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
         }
@@ -251,17 +255,23 @@ public class Course extends Option implements OptionProtocol {
 
     private int promptStudentId(Scanner scr) {
         System.out.println("Enter student ID:");
-        return scr.nextInt();
+        int _studentId = scr.nextInt();
+        consumeNewLine(scr);
+        return _studentId;
     }
 
     private int promptCourseId(Scanner scr) {
         System.out.println("Enter course ID:");
-        return scr.nextInt();
+        int _courseId = scr.nextInt();
+        consumeNewLine(scr);
+        return _courseId;
     }
 
     private int promptNewScore(Scanner scr) {
         System.out.println("Enter new score:");
-        return scr.nextInt();
+        int _newScore = scr.nextInt();
+        consumeNewLine(scr);
+        return _newScore;
     }
 
     // HELPER METHODS
@@ -287,6 +297,7 @@ public class Course extends Option implements OptionProtocol {
             System.out.println("Enter ID for dirt coach:");
             im.course_id = courseId;
             im.instructor_id = scr.nextInt();
+            consumeNewLine(scr);
             im.in_session = "BOTH";
             im.instructor_role = "dirt_coach";
             try {
@@ -313,6 +324,7 @@ public class Course extends Option implements OptionProtocol {
 
                 im.course_id = courseId;
                 im.instructor_id = scr.nextInt();
+                consumeNewLine(scr);
                 im.in_session = session;
                 im.instructor_role = "street_teacher";
                 try {
@@ -325,6 +337,7 @@ public class Course extends Option implements OptionProtocol {
 
                 im.course_id = courseId;
                 im.instructor_id = scr.nextInt();
+                consumeNewLine(scr);
                 im.in_session = session;
                 im.instructor_role = "street_teacher";
                 try {
@@ -346,27 +359,35 @@ public class Course extends Option implements OptionProtocol {
 
             System.out.println("Enter ID for Student #" + (j + 1));
             sm.student_id = scr.nextInt();
+            consumeNewLine(scr);
 
             System.out.println("Has the student completed payment for the course? (1/0)");
             sm.is_payment_completed = scr.nextInt();
+            consumeNewLine(scr);
 
             System.out.println("What is the student's written score?");
             sm.written_score = scr.nextInt();
+            consumeNewLine(scr);
 
             System.out.println("What is the students score for exercise #1?");
             sm.exercise_1_score = scr.nextInt();
+            consumeNewLine(scr);
 
             System.out.println("What is the students score for exercise #2?");
             sm.exercise_2_score = scr.nextInt();
+            consumeNewLine(scr);
 
             System.out.println("What is the students score for exercise #3?");
             sm.exercise_3_score = scr.nextInt();
+            consumeNewLine(scr);
 
             System.out.println("What is the students score for exercise #4?");
             sm.exercise_4_score = scr.nextInt();
+            consumeNewLine(scr);
 
             System.out.println("What is the students score for exercise #5?");
             sm.exercise_5_score = scr.nextInt();
+            consumeNewLine(scr);
 
             updateDB(sm.createEnrollmentEntry(conn, courseId), conn);
             j++;
@@ -380,17 +401,20 @@ public class Course extends Option implements OptionProtocol {
 
         System.out.println("Enter course id:");
         cm.course_id = scr.nextInt();
+        consumeNewLine(scr);
         System.out.println("Enter course name:");
-        cm.course_name = scr.next();
+        cm.course_name = scr.nextLine();
         System.out.println("Enter course description:");
         cm.course_description = scr.nextLine();
-        System.out.print("Enter course date: (YYYY-MM-DD) \n");
+        System.out.println("Enter course date: (YYYY-MM-DD)");
         String _dateStr = scr.nextLine();
         cm.date = parseDate(_dateStr);
-        System.out.print("Enter course cost: \n");
+        System.out.println("Enter course cost:");
         cm.cost = scr.nextInt();
-        System.out.print("Enter course type: (dirt/street)\n");
-        cm.course_type = scr.next();
+        consumeNewLine(scr);
+        System.out.println("Enter course type: (dirt/street)");
+        cm.course_type = scr.nextLine();
+
 
         // Check for Duplicate Entry
         String lookupStmt = "SELECT * FROM course WHERE course_id = ?";

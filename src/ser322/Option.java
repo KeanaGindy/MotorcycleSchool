@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Scanner;
 
 import javax.naming.spi.DirStateFactory.Result;
 
@@ -106,6 +107,10 @@ public class Option {
             e.printStackTrace();
         }
         return date;
+    }
+
+    public void consumeNewLine(Scanner scr) {
+        scr.nextLine();
     }
 
 
