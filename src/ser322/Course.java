@@ -39,6 +39,10 @@ public class Course extends Option implements OptionProtocol {
         } while (isDone == false);        
     }
 
+    public void viewOpts() {
+
+    }
+
     public void displayMenuOptions() {
         System.out.println("Manage Courses");
         System.out.println("\t1 - Create New Course");
@@ -53,7 +57,7 @@ public class Course extends Option implements OptionProtocol {
     public void view(Connection conn, Scanner scr) {
         String queryStmt = "SELECT * from course";
         try {
-            Statement stmt = conn.createStatement();
+            Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = stmt.executeQuery(queryStmt);
             viewDB(rs);
         } catch (SQLException e) {

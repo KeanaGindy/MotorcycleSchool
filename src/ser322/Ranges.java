@@ -1,13 +1,10 @@
 package ser322;
 
 import java.util.Scanner;
-
 import java.sql.Connection;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class Ranges extends Option implements OptionProtocol {
 
@@ -42,33 +39,6 @@ public class Ranges extends Option implements OptionProtocol {
                     break;
             } 
         } while (isDone == false);
-    }
-
-    public void displayMenuOptions() {
-        System.out.println("Manage Ranges");
-        System.out.println("\t1 - Create New Range");
-        System.out.println("\t2 - View Ranges");
-        System.out.println("\t3 - Edit Range");
-        System.out.println("\t4 - Delete Range");
-        System.out.println("\t0 - Return to Main Menu");
-        System.out.println("Please select a valid menu option (0-4)");
-    }
-
-    public void displayViewOptions() {
-        System.out.println("Ranges: View Options");
-        System.out.println("\t1 - View all Ranges");
-        System.out.println("\t2 - View Seats Remaining");
-        System.out.println("\t3 - View Range Report");
-        System.out.println("\t0 - Back to Ranges Menu");
-        System.out.println("Please select a valid menu option (0-4)");
-    }
-
-    public void displayUpdateOptions() {
-        System.out.println("Ranges: Update Options");
-        System.out.println("\t1 - Update Max Capacity");
-        System.out.println("\t2 - Update Type");
-        System.out.println("\t0 - Back to Ranges Menu");
-        System.out.println("Please select a valid menu option (0-2)");
     }
 
     public void view(Connection conn, Scanner scr) {
@@ -188,9 +158,6 @@ public class Ranges extends Option implements OptionProtocol {
         }
     }
 
-
-
-
     public void delete(Connection conn, Scanner scr) {
         // Input Store Variables
         Integer _pk = null;
@@ -202,7 +169,7 @@ public class Ranges extends Option implements OptionProtocol {
 
         String deleteStmt = "DELETE FROM range_location WHERE range_id = ?";
         try {
-            ps = conn.prepareStatement(deleteStmt);
+            ps = conn.prepareStatement(deleteStmt, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setInt(1, _pk);
 
         } catch (Exception e) {
@@ -215,9 +182,6 @@ public class Ranges extends Option implements OptionProtocol {
             System.out.println("No records found to delete.");
         }
     }
-
-
-
 
     public void create(Connection conn, Scanner scr) {
         // Input Store Variables
@@ -243,7 +207,7 @@ public class Ranges extends Option implements OptionProtocol {
         // Check for Duplicate
         String lookupStmt = "SELECT * FROM range_location WHERE range_id = ?";
         try {
-            psdc = conn.prepareStatement(lookupStmt);
+            psdc = conn.prepareStatement(lookupStmt, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             psdc.setInt(1, _rangeId);
             duplicate = checkDuplicate(psdc);
         } catch (Exception e) {
@@ -259,7 +223,7 @@ public class Ranges extends Option implements OptionProtocol {
         // Proceed with Insertion Flow
         String insertStmt = "INSERT INTO range_location VALUES (?, ?, ?);";
         try {
-            ps = conn.prepareStatement(insertStmt);
+            ps = conn.prepareStatement(insertStmt, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             ps.setInt(1, _rangeId);
             ps.setString(2, _rangeType);
             ps.setInt(3, _maxCapacity);
@@ -284,6 +248,35 @@ public class Ranges extends Option implements OptionProtocol {
         }
     }
 
+    // STATIC DISPLAY OPTIONS
+
+    public void displayMenuOptions() {
+        System.out.println("Manage Ranges");
+        System.out.println("\t1 - Create New Range");
+        System.out.println("\t2 - View Ranges");
+        System.out.println("\t3 - Edit Range");
+        System.out.println("\t4 - Delete Range");
+        System.out.println("\t0 - Return to Main Menu");
+        System.out.println("Please select a valid menu option (0-4)");
+    }
+
+    public void displayViewOptions() {
+        System.out.println("Ranges: View Options");
+        System.out.println("\t1 - View all Ranges");
+        System.out.println("\t2 - View Seats Remaining");
+        System.out.println("\t3 - View Range Report");
+        System.out.println("\t0 - Back to Ranges Menu");
+        System.out.println("Please select a valid menu option (0-4)");
+    }
+
+    public void displayUpdateOptions() {
+        System.out.println("Ranges: Update Options");
+        System.out.println("\t1 - Update Max Capacity");
+        System.out.println("\t2 - Update Type");
+        System.out.println("\t0 - Back to Ranges Menu");
+        System.out.println("Please select a valid menu option (0-2)");
+    }
+
     // MODELS
 
     enum ViewType {
@@ -304,7 +297,7 @@ public class Ranges extends Option implements OptionProtocol {
         public PreparedStatement getPreparedStatement(Connection conn) {
             PreparedStatement _ps = null;
             try {
-                _ps = conn.prepareStatement(this.query);
+                _ps = conn.prepareStatement(this.query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -331,7 +324,7 @@ public class Ranges extends Option implements OptionProtocol {
         public PreparedStatement getPreparedStatement(Connection conn) {
             PreparedStatement _ps = null;
             try {
-                _ps = conn.prepareStatement(this.query);
+                _ps = conn.prepareStatement(this.query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             } catch(Exception e) {
                 e.printStackTrace();
             }

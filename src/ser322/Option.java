@@ -9,6 +9,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import javax.naming.spi.DirStateFactory.Result;
+
 public class Option {
     Boolean isDone = false;
     String userOpt = "-1";
@@ -37,6 +39,8 @@ public class Option {
         return success;
     }
 
+    
+
 
     void viewDB(ResultSet rs) {
         try {
@@ -44,11 +48,19 @@ public class Option {
             String[] columnNames = new String[columnCount];
             int[] columnWidths = new int[columnCount];
 
-            // Get the column names and determine the widths of the columns
-            for (int i = 0; i < columnCount; i++) {
-                columnNames[i] = rs.getMetaData().getColumnName(i + 1);
-                columnWidths[i] = Math.max(columnNames[i].length(), rs.getMetaData().getColumnDisplaySize(i + 1));
+
+
+            while(rs.next()) {
+                for(int i = 0; i < columnCount; i++) {
+                    columnNames[i] = rs.getMetaData().getColumnName(i + 1);
+                    Integer str = rs.getString(i + 1).length();
+                    if (str > columnWidths[i]) {
+                        columnWidths[i] = str + 8;
+                    }
+                }
             }
+        
+            rs.beforeFirst();
 
             // Print the header
             for (int i = 0; i < columnCount; i++) {
