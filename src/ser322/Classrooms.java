@@ -70,7 +70,7 @@ public class Classrooms extends Option implements OptionProtocol {
         System.out.println("\t1 - View all Classroom");
         System.out.println("\t2 - View Available Seats on Given Date");
         System.out.println("\t3 - View  Available Classrooms on Given Date");
-        System.out.println("\t0 - Return to Main Menu");
+        System.out.println("\t0 - Return to Manage Classroom Menu");
         System.out.println("Please select a valid menu option (0-3)");
     }
 
@@ -92,7 +92,7 @@ public class Classrooms extends Option implements OptionProtocol {
                     viewAvailableClassroom(conn);
                     break;
                 case "0":
-                returnToClassroomMenu();
+                    returnToClassroomMenu();
                     break;
                 default:
                     invalidInput("3");
@@ -187,8 +187,8 @@ public class Classrooms extends Option implements OptionProtocol {
     public void create(Connection conn, Scanner scr) {
 
         // Input Store Variables
-        String _classroom_id = null;
-        Integer _maxCapacity = null;
+        String classroom_id = null;
+        Integer maxCapacity = null;
 
         // Statement & Duplicate Check Variables
         PreparedStatement ps = null;
@@ -197,15 +197,23 @@ public class Classrooms extends Option implements OptionProtocol {
 
         // Prompt for Input
         System.out.print("Enter classroom id: \n");
-        _classroom_id = scr.next();
+        classroom_id = scr.next();
+
+        while(!Character.isLetter(classroom_id.charAt(0))){
+            System.out.println("Enter letter! ");
+            System.out.println("-----------------------------------------");
+            System.out.print("Enter classroom id: \n");
+            classroom_id = scr.next();
+        }
+
         System.out.print("Enter classroom max capacity: \n");
-        _maxCapacity = scr.nextInt();
+        maxCapacity = scr.nextInt();
 
         // Check for Duplicate
-        String lookupStmt = "SELECT * FROM range_location WHERE range_id = ?";
+        String lookupStmt = "SELECT * FROM classroom_location WHERE classroom_id = ?";
         try {
             psdc = conn.prepareStatement(lookupStmt);
-            psdc.setString(1, _classroom_id);
+            psdc.setString(1, classroom_id);
             duplicate = checkDuplicate(psdc);
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,8 +229,8 @@ public class Classrooms extends Option implements OptionProtocol {
         String insertStmt = "INSERT INTO classroom_location VALUES (?, ?);";
         try {
             ps = conn.prepareStatement(insertStmt);
-            ps.setString(1, _classroom_id);
-            ps.setInt(2, _maxCapacity);
+            ps.setString(1, classroom_id);
+            ps.setInt(2, maxCapacity);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -231,32 +239,32 @@ public class Classrooms extends Option implements OptionProtocol {
             } else {
                 System.out.println("Failed to add classroom to DB");
             }
-            // try {
-            // // Ensure Statement is Closed
-            // if (ps != null) {
-            // ps.close();
-            // }
-            // } catch (SQLException se2) {
-            // se2.printStackTrace();
-            // System.out.println("Not all DB resources freed!");
-            // }
+            try {
+                // Ensure Statement is Closed
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
         }
     }
 
     @Override
     public void delete(Connection conn, Scanner scr) {
         // Input Store Variables
-        String _pk = null;
+        String classroom_id = null;
 
         PreparedStatement ps = null;
 
         System.out.println("Enter classroom to delete: (classroom_id):");
-        _pk = scr.next();
+        classroom_id = scr.next();
 
         String deleteStmt = "DELETE FROM classroom_location WHERE classroom_id = ?";
         try {
             ps = conn.prepareStatement(deleteStmt);
-            ps.setString(1, _pk);
+            ps.setString(1, classroom_id);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -271,13 +279,13 @@ public class Classrooms extends Option implements OptionProtocol {
 
     public void update(Connection conn, Scanner scr) {
         // Input Store Variables
-        String _pk = null;
+        String classroom_id = null;
         Integer _newCapacity = null;
 
         PreparedStatement ps = null;
 
         System.out.println("Enter ID of classroom you'd like to update:");
-        _pk = scr.next();
+        classroom_id = scr.next();
         System.out.println("Enter new classroom max capacity: ");
         _newCapacity = scr.nextInt();
 
@@ -285,7 +293,7 @@ public class Classrooms extends Option implements OptionProtocol {
         try {
             ps = conn.prepareStatement(updateStmt);
             ps.setInt(1, _newCapacity);
-            ps.setString(2, _pk);
+            ps.setString(2, classroom_id);
 
             if (updateDB(ps, conn)) {
                 System.out.println("Record updated successfully.");
