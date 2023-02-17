@@ -89,17 +89,17 @@ public class Course extends Option implements OptionProtocol {
         addCourse(conn, scr, cm);
 
         Integer _numStudents = null;
-        if (cm.course_type.toLowerCase() == "street") {
+        if (cm.course_type.toLowerCase().equals("street")) {
             System.out.println("\n##### " + "Creating new Street Course \n");
             System.out.println("Enter the number students you'd like to add to this course: (max 30)");
             _numStudents = scr.nextInt();
             addInstructors(conn, scr, cm.course_id, RangeType.street, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
-        } else if (cm.course_type.equals("dirt")) {
+        } else if (cm.course_type.toLowerCase().equals("dirt")) {
             System.out.println("\n##### " + "Creating new Dirt Course \n");
             System.out.println("Enter the number students you'd like to add to this course: (max 15)");
             _numStudents = scr.nextInt();
-            addInstructors(conn, scr, cm.course_id, RangeType.street, _numStudents);
+            addInstructors(conn, scr, cm.course_id, RangeType.dirt, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
         }
     }
@@ -109,7 +109,7 @@ public class Course extends Option implements OptionProtocol {
     public void addInstructors(Connection conn, Scanner scr, int courseId, RangeType rt, int numStudents) {
         switch (rt) {
             case dirt:
-
+                handleDirt(conn, scr, numStudents, courseId);
                 break;
             case street:
                 handleStreet(conn, scr, numStudents, courseId);
@@ -117,7 +117,7 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
-    public void handleDirt(Connection conn, Scanner scr, int courseId, int numStudents) {
+    public void handleDirt(Connection conn, Scanner scr, int numStudents, int courseId) {
         if (numStudents > 15) {
             numStudents = 15;
             System.out.println("You entered a value greater than 15. Students will be capped at 15.");
@@ -138,15 +138,13 @@ public class Course extends Option implements OptionProtocol {
     }
 
     public void handleStreet(Connection conn, Scanner scr, int numStudents, int courseId) {
-        String session = null;
+        String session = "AM";
         if (numStudents > 15) {
-            session = "B";
+            session = "PM";
             if (numStudents > 30) {
                 System.out.println("You entered a value greater than 30. Students will be capped at 30.");
                 numStudents = 30;
             }
-        } else {
-            session = "A";
         }
         for (int i = 0; i < 4; i++) {
             InstructorModel im = new InstructorModel();
@@ -223,7 +221,7 @@ public class Course extends Option implements OptionProtocol {
         System.out.print("Enter course id: \n");
         cm.course_id = scr.nextInt();
         System.out.print("Enter course name: \n");
-        cm.course_name = scr.nextLine();
+        cm.course_name = scr.next();
         System.out.print("Enter course description: \n");
         cm.course_description = scr.nextLine();
         System.out.print("Enter course date: (YYYY-MM-DD) \n");
