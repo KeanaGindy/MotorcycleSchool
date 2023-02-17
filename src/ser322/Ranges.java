@@ -96,12 +96,15 @@ public class Ranges extends Option implements OptionProtocol {
     }
 
     private void viewOpts(Connection conn, Scanner scr, ViewType vt) {
-        System.out.println("Enter in a date: (YYYY-MM-DD)");
+
         PreparedStatement ps = vt.getPreparedStatement(conn);
         ResultSet rs = null;
         java.sql.Date _date = null;
-        String _dateStr = scr.nextLine();
-        _date = parseDate(_dateStr);
+        if(vt != ViewType.all) {
+        System.out.println("Enter in a date: (YYYY-MM-DD)");
+            String _dateStr = scr.nextLine();
+            _date = parseDate(_dateStr);
+        }
 
         try {
             switch (vt) {
@@ -281,7 +284,7 @@ public class Ranges extends Option implements OptionProtocol {
 
     enum ViewType {
         available("SELECT range_location.range_id, range_location.range_type, uses.in_session, (range_location.max_capacity - (SELECT COUNT(*) FROM enrolled_in JOIN course ON enrolled_in.course_id = course.course_id JOIN uses ON course.course_id = uses.course_id WHERE uses.range_id = range_location.range_id AND course.course_date = ?)) AS availability FROM range_location JOIN uses ON range_location.range_id = uses.range_id"),
-        all("SELECT * from range_location"),
+        all("SELECT * from range_location;"),
         report("SELECT range_location.range_id, CASE WHEN sub_query.session_count = 1 THEN (SELECT CASE in_session WHEN 'AM' THEN 'PM' WHEN 'PM' THEN 'AM' ELSE 'NONE' END FROM uses WHERE uses.range_id = range_location.range_id AND uses.course_id IN (SELECT course.course_id FROM course WHERE course.course_date = ?) LIMIT 1) WHEN sub_query.session_count = 2 THEN 'NONE' ELSE 'AM & PM' END as session_available FROM range_location LEFT JOIN (SELECT uses.range_id, COUNT(uses.in_session) as session_count FROM uses JOIN course ON uses.course_id = course.course_id AND course.course_date = ? GROUP BY uses.range_id) sub_query ON range_location.range_id = sub_query.range_id LIMIT 0, 500");
 
         private final String query;
