@@ -21,7 +21,7 @@ public class Course extends Option implements OptionProtocol {
                     create(conn, scr);
                     break;
                 case "2":
-                    view(conn);
+                    view(conn, scr);
                     break;
                 case "3":
                     //edit
@@ -33,7 +33,7 @@ public class Course extends Option implements OptionProtocol {
                     returnToMainMenu();
                     break;
                 default:
-                    invalidInput();
+                    invalidInput("4");
                     break;
             } 
         } while (isDone == false);        
@@ -50,7 +50,7 @@ public class Course extends Option implements OptionProtocol {
         System.out.println("Please select a valid menu option (0-4)");
     }
 
-    public void view(Connection conn) {
+    public void view(Connection conn, Scanner scr) {
         String queryStmt = "SELECT * from course";
         try {
             Statement stmt = conn.createStatement();

@@ -11,6 +11,8 @@ import java.sql.Statement;
 
 public class Ranges extends Option implements OptionProtocol {
 
+    boolean isView = false;
+    boolean isUpdate = false;
 
     public void openMenu(Connection conn, Scanner scr) {
         
@@ -24,7 +26,7 @@ public class Ranges extends Option implements OptionProtocol {
                     create(conn, scr);
                     break;
                 case "2":
-                    view(conn);
+                    view(conn, scr);
                     break;
                 case "3":
                     update(conn, scr);
@@ -36,7 +38,7 @@ public class Ranges extends Option implements OptionProtocol {
                     returnToMainMenu();
                     break;
                 default:
-                    invalidInput();
+                    invalidInput("4");
                     break;
             } 
         } while (isDone == false);
@@ -49,20 +51,145 @@ public class Ranges extends Option implements OptionProtocol {
         System.out.println("\t3 - Edit Range");
         System.out.println("\t4 - Delete Range");
         System.out.println("\t0 - Return to Main Menu");
-
         System.out.println("Please select a valid menu option (0-4)");
     }
 
-    public void view(Connection conn) {
-        String queryStmt = "SELECT * from range_location";
+    public void displayViewOptions() {
+        System.out.println("Ranges: View Options");
+        System.out.println("\t1 - View all Ranges");
+        System.out.println("\t2 - View Seats Remaining");
+        System.out.println("\t3 - View Range Report");
+        System.out.println("\t0 - Back to Ranges Menu");
+        System.out.println("Please select a valid menu option (0-4)");
+    }
+
+    public void displayUpdateOptions() {
+        System.out.println("Ranges: Update Options");
+        System.out.println("\t1 - Update Max Capacity");
+        System.out.println("\t2 - Update Type");
+        System.out.println("\t0 - Back to Ranges Menu");
+        System.out.println("Please select a valid menu option (0-2)");
+    }
+
+    public void view(Connection conn, Scanner scr) {
+        isView = true;
+        do {
+            displayViewOptions();
+            userOpt = scr.nextLine();
+            System.out.println("You selected option: " + userOpt);
+
+            switch (userOpt) {
+                case "1":
+                    viewOpts(conn, scr, ViewType.all);
+                    break;
+                case "2":
+                    viewOpts(conn, scr, ViewType.available);
+                    break;
+                case "3":
+                    viewOpts(conn, scr, ViewType.report);
+                    break;
+                case "0":
+                    // Back to Menu
+                    isView = false;
+                    break;
+                default:
+                    invalidInput("3");
+                    break;
+            }
+        } while (isView == true);        
+    }
+
+    public void update(Connection conn, Scanner scr) {
+        isUpdate = true;
+        do {
+            displayUpdateOptions();
+            userOpt = scr.nextLine();
+            System.out.println("You selected option: " + userOpt);
+
+            switch (userOpt) {
+                case "1":
+                    updateOpts(conn, scr, UpdateType.capacity);
+                    // max capacity
+                    break;
+                case "2":
+                    updateOpts(conn, scr, UpdateType.type);
+                    // type
+                    break;
+                case "0":
+                    isUpdate = false;
+                    break;
+                default:
+                    invalidInput("2");
+            }
+
+        } while (isUpdate == true);
+    }
+
+    private void viewOpts(Connection conn, Scanner scr, ViewType vt) {
+        System.out.println("Enter in a date: (YYYY-MM-DD)");
+        PreparedStatement ps = vt.getPreparedStatement(conn);
+        ResultSet rs = null;
+        java.sql.Date _date = null;
+        String _dateStr = scr.nextLine();
+        _date = parseDate(_dateStr);
+
         try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(queryStmt);
-            viewDB(rs);
-        } catch (SQLException e) {
+            switch (vt) {
+                case all:
+                    break;
+                case available:
+                    ps.setDate(1, _date);
+                    break;
+                case report:
+                    ps.setDate(1, _date);
+                    ps.setDate(2, _date);
+                    break;
+            }
+            rs = ps.executeQuery();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        viewDB(rs);
+    }
+
+    public void updateOpts(Connection conn, Scanner scr, UpdateType ut) {
+        // Input Store Variables
+        Integer _rangeId = null;
+        Integer _newCapacity = null;
+        String _newType = null;
+        PreparedStatement ps = null;
+
+        System.out.println("Enter ID of the range you'd like to update:");
+        _rangeId = scr.nextInt();
+
+        try {
+            ps = ut.getPreparedStatement(conn);
+            ps.setInt(2, _rangeId);
+            switch(ut) {
+                case capacity:
+                    System.out.println("Enter the new capacity:");
+                    _newCapacity = scr.nextInt();
+                    ps.setInt(1, _newCapacity);
+                    break;
+                case type:
+                    System.out.println("Enter the new type:");
+                    _newType = scr.next();
+                    ps.setString(1, _newType);
+                    break;
+            }
+             if (updateDB(ps, conn)) {
+                System.out.println("Ranges table updated successfuly.");
+             } else {
+                System.out.println("Failed to update Ranges table.");
+             }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
+
 
     public void delete(Connection conn, Scanner scr) {
         // Input Store Variables
@@ -89,33 +216,8 @@ public class Ranges extends Option implements OptionProtocol {
         }
     }
 
-    public void update(Connection conn, Scanner scr) {
-        // Input Store Variables
-        Integer _pk = null;
-        Integer _newCapacity = null;
 
-        PreparedStatement ps = null;
 
-        System.out.println("Enter ID of range you'd like to update:");
-        _pk = scr.nextInt();
-        System.out.println("Enter ID of range you'd like to update:");
-        _newCapacity = scr.nextInt();
-
-        String updateStmt = "UPDATE range_location SET max_capacity = ? WHERE range_id = ?;";
-        try {
-            ps = conn.prepareStatement(updateStmt);
-            ps.setInt(1, _newCapacity);
-            ps.setInt(2, _pk);
-            
-            if (updateDB(ps, conn)) {
-                System.out.println("Record updated successfully.");
-            } else {
-                System.out.println("No records found to update.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public void create(Connection conn, Scanner scr) {
         // Input Store Variables
@@ -179,6 +281,61 @@ public class Ranges extends Option implements OptionProtocol {
                 se2.printStackTrace();
                 System.out.println("Not all DB resources freed!");
             }
+        }
+    }
+
+    // MODELS
+
+    enum ViewType {
+        available("SELECT range_location.range_id, range_location.range_type, uses.in_session, (range_location.max_capacity - (SELECT COUNT(*) FROM enrolled_in JOIN course ON enrolled_in.course_id = course.course_id JOIN uses ON course.course_id = uses.course_id WHERE uses.range_id = range_location.range_id AND course.course_date = ?)) AS availability FROM range_location JOIN uses ON range_location.range_id = uses.range_id"),
+        all("SELECT * from range_location"),
+        report("SELECT range_location.range_id, CASE WHEN sub_query.session_count = 1 THEN (SELECT CASE in_session WHEN 'AM' THEN 'PM' WHEN 'PM' THEN 'AM' ELSE 'NONE' END FROM uses WHERE uses.range_id = range_location.range_id AND uses.course_id IN (SELECT course.course_id FROM course WHERE course.course_date = ?) LIMIT 1) WHEN sub_query.session_count = 2 THEN 'NONE' ELSE 'AM & PM' END as session_available FROM range_location LEFT JOIN (SELECT uses.range_id, COUNT(uses.in_session) as session_count FROM uses JOIN course ON uses.course_id = course.course_id AND course.course_date = ? GROUP BY uses.range_id) sub_query ON range_location.range_id = sub_query.range_id LIMIT 0, 500");
+
+        private final String query;
+
+        private ViewType(String query) {
+            this.query = query;
+        }
+
+        public String getQuery() {
+            return this.query;
+        }
+
+        public PreparedStatement getPreparedStatement(Connection conn) {
+            PreparedStatement _ps = null;
+            try {
+                _ps = conn.prepareStatement(this.query);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+            return _ps;
+
+        }
+    }
+
+    enum UpdateType {
+        capacity("UPDATE range_location SET max_capacity = ? WHERE range_id = ?;"),
+        type("UPDATE range_location SET range_type = ? WHERE range_id = ?;");
+
+        private final String query;
+
+        private UpdateType(String query) {
+            this.query = query;
+        }
+
+
+        public String getQuery() {
+            return this.query;
+        }
+
+        public PreparedStatement getPreparedStatement(Connection conn) {
+            PreparedStatement _ps = null;
+            try {
+                _ps = conn.prepareStatement(this.query);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+            return _ps;
         }
     }
 }

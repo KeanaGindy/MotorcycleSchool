@@ -26,7 +26,7 @@ public class Classrooms extends Option implements OptionProtocol {
                     create(conn, scr);
                     break;
                 case "2":
-                    view(conn);
+                    view(conn, scr);
                     break;
                 case "3":
                     update(conn, scr);
@@ -38,7 +38,7 @@ public class Classrooms extends Option implements OptionProtocol {
                     returnToMainMenu();
                     break;
                 default:
-                    invalidInput();
+                    invalidInput("4");
                     break;
             }
         } while (isDone == false);
@@ -73,9 +73,9 @@ public class Classrooms extends Option implements OptionProtocol {
     }
 
     @Override
-    public void view(Connection conn) {
+    public void view(Connection conn, Scanner scr) {
 
-        Scanner scr = new Scanner(System.in);
+        
 
         do {
             displayClassroomOptions();
@@ -96,7 +96,7 @@ public class Classrooms extends Option implements OptionProtocol {
                     returnToMainMenu();
                     break;
                 default:
-                    invalidInput();
+                    invalidInput("3");
                     break;
             }
         } while (isDone == false);
