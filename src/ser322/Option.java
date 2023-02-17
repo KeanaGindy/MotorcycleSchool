@@ -8,13 +8,16 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Scanner;
+
+import javax.naming.spi.DirStateFactory.Result;
 
 public class Option {
     Boolean isDone = false;
     String userOpt = "-1";
 
-    void invalidInput() {
-        System.out.println("Invalid menu option. Please try again with a valid integer (0-4).");
+    void invalidInput(String max) {
+        System.out.println("Invalid menu option. Please try again with a valid integer (0-" + max + ").");
     }
 
     void returnToMainMenu() {
@@ -37,17 +40,28 @@ public class Option {
         return success;
     }
 
+    
+
+
     void viewDB(ResultSet rs) {
         try {
             int columnCount = rs.getMetaData().getColumnCount();
             String[] columnNames = new String[columnCount];
             int[] columnWidths = new int[columnCount];
 
-            // Get the column names and determine the widths of the columns
-            for (int i = 0; i < columnCount; i++) {
-                columnNames[i] = rs.getMetaData().getColumnName(i + 1);
-                columnWidths[i] = Math.max(columnNames[i].length(), rs.getMetaData().getColumnDisplaySize(i + 1));
+
+
+            while(rs.next()) {
+                for(int i = 0; i < columnCount; i++) {
+                    columnNames[i] = rs.getMetaData().getColumnName(i + 1);
+                    Integer str = rs.getString(i + 1).length();
+                    if (str > columnWidths[i]) {
+                        columnWidths[i] = str + 8;
+                    }
+                }
             }
+        
+            rs.beforeFirst();
 
             // Print the header
             for (int i = 0; i < columnCount; i++) {
@@ -93,6 +107,10 @@ public class Option {
             e.printStackTrace();
         }
         return date;
+    }
+
+    public void consumeNewLine(Scanner scr) {
+        scr.nextLine();
     }
 
 
