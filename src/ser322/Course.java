@@ -9,13 +9,12 @@ import java.util.Scanner;
 
 public class Course extends Option implements OptionProtocol {
 
-  
     public void openMenu(Connection conn, Scanner scr) {
         do {
             displayMenuOptions();
             userOpt = scr.nextLine();
-            System.out.println("You selected option: " + userOpt);  
-            //validate user input
+            System.out.println("You selected option: " + userOpt);
+            // validate user input
             switch (userOpt) {
                 case "1":
                     create(conn, scr);
@@ -24,7 +23,7 @@ public class Course extends Option implements OptionProtocol {
                     view(conn, scr);
                     break;
                 case "3":
-                    //edit
+                    // edit
                     break;
                 case "4":
                     delete(conn, scr);
@@ -35,12 +34,8 @@ public class Course extends Option implements OptionProtocol {
                 default:
                     invalidInput("4");
                     break;
-            } 
-        } while (isDone == false);        
-    }
-
-    public void viewOpts() {
-
+            }
+        } while (isDone == false);
     }
 
     public void displayMenuOptions() {
@@ -50,7 +45,6 @@ public class Course extends Option implements OptionProtocol {
         System.out.println("\t3 - Edit Course");
         System.out.println("\t4 - Delete Course");
         System.out.println("\t0 - Return to Main Menu");
-
         System.out.println("Please select a valid menu option (0-4)");
     }
 
@@ -70,7 +64,7 @@ public class Course extends Option implements OptionProtocol {
         Integer _pk = null;
 
         PreparedStatement ps = null;
-        
+
         System.out.println("Enter course to delete: pk(course_id):");
         _pk = scr.nextInt();
 
@@ -82,7 +76,7 @@ public class Course extends Option implements OptionProtocol {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         if (updateDB(ps, conn)) {
             System.out.println("Record deleted successfully.");
         } else {
@@ -93,7 +87,7 @@ public class Course extends Option implements OptionProtocol {
     public void create(Connection conn, Scanner scr) {
         CourseModel cm = new CourseModel();
         addCourse(conn, scr, cm);
-        
+
         Integer _numStudents = null;
         if (cm.course_type.toLowerCase() == "street") {
             System.out.println("\n##### " + "Creating new Street Course \n");
@@ -113,7 +107,7 @@ public class Course extends Option implements OptionProtocol {
     // HELPER METHODS
 
     public void addInstructors(Connection conn, Scanner scr, int courseId, RangeType rt, int numStudents) {
-        switch(rt) {
+        switch (rt) {
             case dirt:
 
                 break;
@@ -123,18 +117,14 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
-    public void handleCourseCreate() {
-
-    }
-
     public void handleDirt(Connection conn, Scanner scr, int courseId, int numStudents) {
         if (numStudents > 15) {
             numStudents = 15;
             System.out.println("You entered a value greater than 15. Students will be capped at 15.");
         }
-        for(int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             InstructorModel im = new InstructorModel();
-            System.out.println("Enter ID for dirt coach:");                    
+            System.out.println("Enter ID for dirt coach:");
             im.course_id = courseId;
             im.instructor_id = scr.nextInt();
             im.in_session = "BOTH";
@@ -153,47 +143,47 @@ public class Course extends Option implements OptionProtocol {
             session = "B";
             if (numStudents > 30) {
                 System.out.println("You entered a value greater than 30. Students will be capped at 30.");
-                numStudents  = 30;
+                numStudents = 30;
             }
         } else {
             session = "A";
         }
-        for(int i = 0; i < 4; i++) {
-                InstructorModel im = new InstructorModel();
-                if(i == 0) {
-                    System.out.println("Enter ID for street teacher:");
-                    
-                    im.course_id = courseId;
-                    im.instructor_id = scr.nextInt();
-                    im.in_session = session;
-                    im.instructor_role = "street_teacher";
-                    try {
-                        updateDB(im.createInstructsEntry(conn, courseId), conn);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    System.out.println("Enter ID for street coach #" + i);
-                    
+        for (int i = 0; i < 4; i++) {
+            InstructorModel im = new InstructorModel();
+            if (i == 0) {
+                System.out.println("Enter ID for street teacher:");
+
                 im.course_id = courseId;
                 im.instructor_id = scr.nextInt();
-               im.in_session = session;
-               im.instructor_role = "street_teacher";
+                im.in_session = session;
+                im.instructor_role = "street_teacher";
                 try {
                     updateDB(im.createInstructsEntry(conn, courseId), conn);
                 } catch (Exception e) {
-                        e.printStackTrace();
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Enter ID for street coach #" + i);
+
+                im.course_id = courseId;
+                im.instructor_id = scr.nextInt();
+                im.in_session = session;
+                im.instructor_role = "street_teacher";
+                try {
+                    updateDB(im.createInstructsEntry(conn, courseId), conn);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
     }
 
     public void addStudents(Connection conn, Scanner scr, int courseId, int numStudents) {
-        
+
         boolean addingStudents = true;
         int j = 0;
 
-        while(addingStudents && j < numStudents) {
+        while (addingStudents && j < numStudents) {
             StudentModel sm = new StudentModel();
 
             System.out.println("Enter ID for Student #" + (j + 1));
@@ -210,7 +200,7 @@ public class Course extends Option implements OptionProtocol {
 
             System.out.println("What is the students score for exercise #2?");
             sm.exercise_2_score = scr.nextInt();
-            
+
             System.out.println("What is the students score for exercise #3?");
             sm.exercise_3_score = scr.nextInt();
 
@@ -226,7 +216,6 @@ public class Course extends Option implements OptionProtocol {
     }
 
     public void addCourse(Connection conn, Scanner scr, CourseModel cm) {
-
         PreparedStatement ps = null;
         PreparedStatement psdc = null;
         boolean duplicate = false;
@@ -245,9 +234,6 @@ public class Course extends Option implements OptionProtocol {
         System.out.print("Enter course type: (dirt/street)\n");
         cm.course_type = scr.next();
 
-
-
-  
         // Check for Duplicate Entry
         String lookupStmt = "SELECT * FROM course WHERE course_id = ?";
         try {
@@ -257,7 +243,7 @@ public class Course extends Option implements OptionProtocol {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if ( duplicate ) {
+        if (duplicate) {
             System.out.println("\nDUPLICATE ENTRY:: Course with provided ID already exists. Returning to menu.\n");
             return;
         }
@@ -287,8 +273,7 @@ public class Course extends Option implements OptionProtocol {
                 if (ps != null) {
                     ps.close();
                 }
-            }
-            catch (SQLException se2) {
+            } catch (SQLException se2) {
                 se2.printStackTrace();
                 System.out.println("Not all DB resources freed!");
             }
@@ -324,8 +309,6 @@ public class Course extends Option implements OptionProtocol {
         street;
     }
 
-
-
     class StudentModel {
         int student_id;
         int is_payment_completed;
@@ -335,8 +318,6 @@ public class Course extends Option implements OptionProtocol {
         int exercise_3_score;
         int exercise_4_score;
         int exercise_5_score;
-
-        
 
         public PreparedStatement createEnrollmentEntry(Connection conn, int course_id) {
             PreparedStatement ps = null;
@@ -384,6 +365,4 @@ public class Course extends Option implements OptionProtocol {
             return ps;
         }
     }
-    
-    
 }
