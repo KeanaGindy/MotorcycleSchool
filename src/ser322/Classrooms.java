@@ -13,6 +13,8 @@ import java.text.SimpleDateFormat;
 
 public class Classrooms extends Option implements OptionProtocol {
 
+    Boolean isClassRoomDone = false;
+
     @Override
     public void openMenu(Connection conn, Scanner scr) {
 
@@ -74,9 +76,6 @@ public class Classrooms extends Option implements OptionProtocol {
 
     @Override
     public void view(Connection conn, Scanner scr) {
-
-        
-
         do {
             displayClassroomOptions();
             userOpt = scr.next();
@@ -93,13 +92,18 @@ public class Classrooms extends Option implements OptionProtocol {
                     viewAvailableClassroom(conn);
                     break;
                 case "0":
-                    returnToMainMenu();
+                returnToClassroomMenu();
                     break;
                 default:
                     invalidInput("3");
                     break;
             }
-        } while (isDone == false);
+        } while (isClassRoomDone == false);
+    }
+
+    public void returnToClassroomMenu() {
+        isClassRoomDone = true;
+        System.out.println("Returning to Classroom menu..");
     }
 
     public void viewAllClassroom(Connection conn) {
