@@ -114,13 +114,14 @@ public class Course extends Option implements OptionProtocol {
         _courseName = scr.nextLine();
         System.out.print("Enter course description: \n");
         _courseDescription = scr.nextLine();
-        System.out.print("Enter course type: \n");
-        _courseType = scr.nextLine();
         System.out.print("Enter course date: (YYYY-MM-DD) \n");
         String _dateStr = scr.nextLine();
         _courseDate = parseDate(_dateStr);
         System.out.print("Enter course cost: \n");
         _cost = scr.nextInt();
+        System.out.print("Enter course type: (dirt/street)\n");
+        _courseType = scr.next();
+
 
 
   
@@ -171,6 +172,109 @@ public class Course extends Option implements OptionProtocol {
                 System.out.println("Not all DB resources freed!");
             }
         }
+
+    
+        if (_courseType.toLowerCase() == "street") {
+
+        } else if (_courseType.equals("dirt")) {
+
+            System.out.println("\n##### " + "Creating new Dirt Bike Course \n");
+
+
+            Integer _numStudents = null;
+            System.out.println("Enter the number students you'd like to add to this course: (max 15)");
+            _numStudents = scr.nextInt();
+ 
+            if (_numStudents > 15) {
+                _numStudents = 15;
+                System.out.println("You entered a value greater than 15. Students will be capped at 15.");
+            }
+
+            Integer[] instructors = new Integer[3];
+
+            // Add Instructors
+            try {
+                for(int i = 0; i < 3; i++) {
+                    System.out.println("Enter ID for instructor #" + (i + 1));
+                    instructors[i] = scr.nextInt();
+                    PreparedStatement psInst = conn.prepareStatement("INSERT INTO instructs VALUES (?, ?, ?, ?);");
+                    psInst.setInt(1, instructors[i]);
+                    psInst.setInt(2, _courseId);
+                    psInst.setString(3, "BOTH");
+                    psInst.setString(4, "dirt_coach");
+                    updateDB(psInst, conn);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            boolean addingStudents = true;
+            int j = 0;
+
+            while(addingStudents && j < _numStudents) {
+                StudentModel sm = new StudentModel();
+
+                System.out.println("Enter ID for Student #" + (j + 1));
+                sm.student_id = scr.nextInt();
+
+                System.out.println("Has the student completed payment for the course? (1/0)");
+                sm.is_payment_completed = scr.nextInt();
+
+                System.out.println("What is the student's written score?");
+                sm.written_score = scr.nextInt();
+
+                System.out.println("What is the students score for exercise #1?");
+                sm.exercise_1_score = scr.nextInt();
+
+                System.out.println("What is the students score for exercise #2?");
+                sm.exercise_2_score = scr.nextInt();
+                
+                System.out.println("What is the students score for exercise #3?");
+                sm.exercise_3_score = scr.nextInt();
+
+                System.out.println("What is the students score for exercise #4?");
+                sm.exercise_4_score = scr.nextInt();
+
+                System.out.println("What is the students score for exercise #5?");
+                sm.exercise_5_score = scr.nextInt();
+
+                updateDB(sm.createEnrollmentEntry(conn, _courseId), conn);
+                j++;
+            }
+
+        }
     }
+
+    class StudentModel {
+        int student_id;
+        int is_payment_completed;
+        int written_score;
+        int exercise_1_score;
+        int exercise_2_score;
+        int exercise_3_score;
+        int exercise_4_score;
+        int exercise_5_score;
+
+        public PreparedStatement createEnrollmentEntry(Connection conn, int course_id) {
+            PreparedStatement ps = null;
+            String query = "INSERT INTO enrolled_in VALUES (?,?,?,?,?,?,?,?,?);";
+            try {
+                ps = conn.prepareStatement(query);
+                ps.setInt(1, course_id);
+                ps.setInt(2, this.student_id);
+                ps.setInt(3, this.is_payment_completed);
+                ps.setInt(4, written_score);
+                ps.setInt(5, this.exercise_1_score);
+                ps.setInt(6, this.exercise_2_score);
+                ps.setInt(7, this.exercise_3_score);
+                ps.setInt(8, this.exercise_4_score);
+                ps.setInt(9, this.exercise_5_score);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return ps;
+        }
+    }
+    
     
 }
