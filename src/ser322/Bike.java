@@ -584,10 +584,8 @@ public class Bike {
      */
     public void viewBikeHistory(Connection conn, Scanner scr) {
     PreparedStatement ps = null;
-    PreparedStatement psCheckDupe = null;
     ResultSet rs = null;
     String vin = "";
-    boolean bikeExists = true;
 
     while (true) {
         System.out.println("Please enter the vin of the bike you want to see the history of: ");
@@ -595,60 +593,42 @@ public class Bike {
         scr.nextLine(); // consume extra newline
         
         if (!isVinExist(conn, vin)) {
-            System.out.println("Invalid VIN. Please enter a valid VIN.");
+            System.out.println("Invalid VIN (Bike does not exist). Please enter a valid VIN.");
         } else {
             break;
         }
     }
-
-    //check to make sure bike exists
+    // 
 	try {
-        psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-        psCheckDupe.setString(1, vin);
-        rs = psCheckDupe.executeQuery();
-        //get size of result set
-        int i = 0;
-        while(rs.next()) {
-            i++;
-        }           
-        if (rs == null || i == 0) {
-            //bike does not exist
-            System.out.println("Bike does not exist! Returning to menu...");
-            bikeExists = false;
-            psCheckDupe.clearParameters();
-            psCheckDupe.close();
+        ps = conn.prepareStatement("SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date FROM bike LEFT JOIN repair_bike ON bike.vin = repair_bike.vin LEFT JOIN assigned_to ON bike.vin = assigned_to.vin LEFT JOIN course ON assigned_to.course_id = course.course_id WHERE bike.vin = ? LIMIT 0, 500;");
+        ps.setString(1, vin);
+        rs = ps.executeQuery();
+        System.out.println("Displaying the history of the bike requested: \n-----------------------------------------------");
+        System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n", "vin", "bike_type", "repair_status", "problem_date", "problem_description", "repair_date", "course_id", "course_date");
+        System.out.println();
+        // Display the results
+        while (rs.next()) {
+            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n",
+                    rs.getString("vin"), rs.getString("bike_type"), rs.getBoolean("repair_status"),
+                    rs.getDate("problem_date"), rs.getString("problem_description"), 
+                    rs.getDate("repair_date"), rs.getInt("course_id"), rs.getDate("course_date"));
         }
-        if (bikeExists) {
-            ps = conn.prepareStatement("SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date FROM bike LEFT JOIN repair_bike ON bike.vin = repair_bike.vin LEFT JOIN assigned_to ON bike.vin = assigned_to.vin LEFT JOIN course ON assigned_to.course_id = course.course_id WHERE bike.vin = ? LIMIT 0, 500;");
-            ps.setString(1, vin);
-            rs = ps.executeQuery();
-            System.out.println("Displaying the history of the bike requested: \n-----------------------------------------------");
-            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n", "vin", "bike_type", "repair_status", "problem_date", "problem_description", "repair_date", "course_id", "course_date");
-            System.out.println();
-            // Display the results
-            while (rs.next()) {
-                System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n",
-                        rs.getString("vin"), rs.getString("bike_type"), rs.getBoolean("repair_status"),
-                        rs.getDate("problem_date"), rs.getString("problem_description"), 
-                        rs.getDate("repair_date"), rs.getInt("course_id"), rs.getDate("course_date"));
-            }
-            ps.clearParameters();
-            ps.close();
+        ps.clearParameters();
+        ps.close();
 
-            conn.commit();
-        }
+        conn.commit();
     } catch (SQLException e) {
         e.printStackTrace();
     } finally {
         try {
             if (ps != null) 
                 ps.close();
-            if (psCheckDupe != null)
-                psCheckDupe.close();
+            if (ps != null)
+                ps.close();
             } catch (SQLException se2) {
                 se2.printStackTrace();
                 System.out.println("Not all DB resources freed!");
-                }
+            }
         }
     }
 
@@ -752,50 +732,29 @@ public class Bike {
      */
     private void editBikeLicensePlate(Connection conn, Scanner scr, String vin) {
         PreparedStatement ps = null;
-        PreparedStatement psCheckDupe = null;
-        ResultSet rs = null;
         String license_plate = "";
-        boolean bikeExists = false;
 
         //get user input
         System.out.println("Please enter the new license plate number for bike " + vin + " : ");
         license_plate = scr.nextLine();
 
         try {
-            psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-            psCheckDupe.setString(1, vin);
-            rs = psCheckDupe.executeQuery();
-            //get size of result set
-            int i = 0;
-            while(rs.next()) {
-                i++;
-            }           
-            if (rs != null && i > 0) {
-                //bike exists
-                bikeExists = true;
-                psCheckDupe.clearParameters();
-                psCheckDupe.close();
+            ps = conn.prepareStatement("UPDATE bike SET license_plate = ? WHERE vin = ?;");
+            ps.setString(1, license_plate);
+            ps.setString(2, vin);
+            if (ps.executeUpdate() > 0) {
+                System.out.println("Edited bike's license plate number OK");
             }
-            if (bikeExists) {
-                ps = conn.prepareStatement("UPDATE bike SET license_plate = ? WHERE vin = ?;");
-                ps.setString(1, license_plate);
-                ps.setString(2, vin);
-                if (ps.executeUpdate() > 0) {
-                    System.out.println("Edited bike's license plate number OK");
-                }
-                ps.clearParameters();
-                ps.close();
+            ps.clearParameters();
+            ps.close();
 
-                conn.commit();
-            }
+            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
                 if (ps != null) 
                     ps.close();
-                if (psCheckDupe != null)
-                    psCheckDupe.close();
             }
             catch (SQLException se2) {
                 se2.printStackTrace();
@@ -812,9 +771,6 @@ public class Bike {
      */
     private void editBikeRepairStatus(Connection conn, Scanner scr, String vin) {
         PreparedStatement ps = null;
-        PreparedStatement psCheckDupe = null;
-        ResultSet rs = null;
-        boolean bikeExists = false;
         boolean repair_status = false;
         int selection;
 
@@ -836,40 +792,22 @@ public class Bike {
         } while (selection != 1 && selection != 2);
 
         try {
-            psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-            psCheckDupe.setString(1, vin);
-            rs = psCheckDupe.executeQuery();
-            //get size of result set
-            int i = 0;
-            while(rs.next()) {
-                i++;
-            }           
-            if (rs != null && i > 0) {
-                //bike exists
-                bikeExists = true;
-                psCheckDupe.clearParameters();
-                psCheckDupe.close();
+            ps = conn.prepareStatement("UPDATE bike SET repair_status = ? WHERE vin = ?;");
+            ps.setBoolean(1, repair_status);
+            ps.setString(2, vin);
+            if (ps.executeUpdate() > 0) {
+                System.out.println("Edited bike's repair status OK");
             }
-            if (bikeExists) {
-                ps = conn.prepareStatement("UPDATE bike SET repair_status = ? WHERE vin = ?;");
-                ps.setBoolean(1, repair_status);
-                ps.setString(2, vin);
-                if (ps.executeUpdate() > 0) {
-                    System.out.println("Edited bike's repair status OK");
-                }
-                ps.clearParameters();
-                ps.close();
+            ps.clearParameters();
+            ps.close();
 
-                conn.commit();
-            }
+            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
                 if (ps != null) 
                     ps.close();
-                if (psCheckDupe != null)
-                    psCheckDupe.close();
             }
             catch (SQLException se2) {
                 se2.printStackTrace();
@@ -891,52 +829,64 @@ public class Bike {
         int repair_cost = 0;
         Date repair_date = null;
         String problem_description = "";
-        boolean bikeExists = false;
     
         // get user input
-        System.out.println("Please enter the bike's vin number: ");
-        vin = scr.next();
-        scr.nextLine(); // consume extra newline
-
-        try {
-            ps = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-            ps.setString(1, vin);
-            rs = ps.executeQuery();
-            //get size of result set
-            int i = 0;
-            while(rs.next()) {
-                i++;
-            }           
-            if (rs == null || i == 0) {
-                //bike does not exist
-                System.out.println("Bike does not exist! Returning to menu...");
-                bikeExists = false;
-                ps.clearParameters();
-                ps.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-            } catch (SQLException se2) {
-                se2.printStackTrace();
-                System.out.println("Not all DB resources freed!");
+        while (true) {
+            System.out.println("Please enter the vin of the bike you want add a repair note to: ");
+            vin = scr.next();
+            scr.nextLine(); // consume extra newline
+            
+            if (!isVinExist(conn, vin)) {
+                System.out.println("Invalid VIN (Bike does not exist). Please enter a valid VIN.");
+            } else {
+                // check repair status of bike
+                try {
+                    ps = conn.prepareStatement("SELECT repair_status FROM bike WHERE vin = ?");
+                    ps.setString(1, vin);
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        boolean repairStatus = rs.getBoolean(1);
+                        if (!repairStatus) {
+                            System.out.println("Repair status of the bike is currently false. Would you like to update the repair status? (Y/N)");
+                            String response = scr.nextLine();
+                            if (response.equalsIgnoreCase("y")) {
+                                ps.close();
+                                ps = conn.prepareStatement("UPDATE bike SET repair_status = true WHERE vin = ?");
+                                ps.setString(1, vin);
+                                ps.executeUpdate();
+                            } else {
+                                return;
+                            }
+                        }
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (ps != null)
+                            ps.close();
+                        if (rs != null)
+                            rs.close();
+                    } catch (SQLException se2) {
+                        se2.printStackTrace();
+                        System.out.println("Not all DB resources freed!");
+                    }
+                }
+                break;
             }
         }
     
         // add error message for incorrect date format
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         System.out.println("Please enter the date when the bike showed initial problems (format: `YYYY-MM-DD`): ");
-        String problemDateStr = scr.nextLine();
-        try {
-            java.util.Date temp_date = formatter.parse(problemDateStr);
-            problem_date = new java.sql.Date(temp_date.getTime());
-        } catch (ParseException e) {
-            System.out.println("Date was not in correct format");
-            e.printStackTrace();
-            return;
+        while (problem_date == null) {
+            String problemDateStr = scr.nextLine();
+            try {
+                java.util.Date temp_date = formatter.parse(problemDateStr);
+                problem_date = new java.sql.Date(temp_date.getTime());
+            } catch (ParseException e) {
+                System.out.println("Date was not in correct format. Please enter a date in the format `YYYY-MM-DD`.");
+            }
         }
     
         // add repair cost of bike
@@ -948,54 +898,48 @@ public class Bike {
         repair_cost = scr.nextInt();
         scr.nextLine(); //
     
-        // add error message for incorrect date format
-        System.out.println("Please enter the completed repair date of the bike: (format: `YYYY-MM-DD`): ");
-        String repair_date_str = "";
-        repair_date_str = scr.nextLine();
-        if (!repair_date_str.equals("")) {
-            try {
-                java.util.Date temp_date = formatter.parse(repair_date_str);
-                repair_date = new java.sql.Date(temp_date.getTime());
-            } catch (ParseException e) {
-                System.out.println("Date was not in correct format");
-                e.printStackTrace();
-                return;
-            }
-        }
-    
         System.out.println("Please enter bike's problem description in repair: ");
         problem_description = scr.next();
         scr.nextLine(); // consume extra newline
     
-        // check to make sure bike exists, then write to db
-        try {
-            ps = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-            ps.setString(1, vin);
-            rs = ps.executeQuery();
-    
-            if (rs.next()) {
-                // bike exists
-                ps.close();
-    
-                ps = conn.prepareStatement("INSERT INTO repair_bike VALUES(?, ?, ?, ?, ?);");
-                ps.setString(1, vin);
-                ps.setDate(2, problem_date);
-                ps.setInt(3, repair_cost);
-                ps.setDate(4, repair_date);
-                ps.setString(5, problem_description);
-    
-                if (ps.executeUpdate() > 0) {
-                    System.out.println("Inserted bike repair entry OK");
-                }
-                ps.clearParameters();
-                ps.close();
-    
-                // have to do this to write changes to a DB
-                conn.commit();
+
+        // enter repair date if exists
+        System.out.println("Please enter the completed repair date of the bike (format: `YYYY-MM-DD`), or press enter to leave it blank: ");
+        while (true) {
+            String repair_date_str = scr.nextLine();
+            if (repair_date_str.isEmpty()) {
+                break; // no date entered, leave repair_date as null
             } else {
-                // bike does not exist
-                System.out.println("Bike does not exist in the database");
+                try {
+                    java.util.Date temp_date = formatter.parse(repair_date_str);
+                    repair_date = new java.sql.Date(temp_date.getTime());
+                    break; // valid date entered, exit loop
+                } catch (ParseException e) {
+                    System.out.println("Date was not in correct format. Please enter a date in the format `YYYY-MM-DD`, or press enter to leave it blank.");
+                }
             }
+        }
+
+        // write to db
+        try {
+            // bike exists
+            ps.close();
+
+            ps = conn.prepareStatement("INSERT INTO repair_bike VALUES(?, ?, ?, ?, ?);");
+            ps.setString(1, vin);
+            ps.setDate(2, problem_date);
+            ps.setInt(3, repair_cost);
+            ps.setDate(4, repair_date);
+            ps.setString(5, problem_description);
+
+            if (ps.executeUpdate() > 0) {
+                System.out.println("Inserted bike repair entry OK");
+            }
+            ps.clearParameters();
+            ps.close();
+
+            // have to do this to write changes to a DB
+            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -1008,5 +952,4 @@ public class Bike {
             }
         }
     }
-    
 }
