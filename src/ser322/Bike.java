@@ -333,24 +333,21 @@ public class Bike {
     public void viewStreetBikes(Connection conn, Scanner scr) {
         Statement stmt = null;
         ResultSet rs = null;
-        System.out.println("Displaying all street type bikes: ");
+        System.out.println("Displaying all street type bikes: \n-----------------------------------------");
     
         //check to make sure bike exists
 	    try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM bike WHERE bike_type = 'street';");
-            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s", "vin", "license_plate", "repair_status", "brand", "bike_type", "cc");
+            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s\n", "vin", "license_plate", "repair_status", "brand", "bike_type", "cc");
             System.out.println();
             // Display the results
-			while (rs.next()) {
-                System.out.printf("%-20s",  rs.getString("vin"));
-                System.out.printf("%-20s",  rs.getString("license_plate"));
-                System.out.printf("%-20s",  rs.getBoolean("repair_status"));
-                System.out.printf("%-20s",  rs.getString("brand"));
-                System.out.printf("%-20s",  rs.getString("bike_type"));
-                System.out.printf("%-20s",  rs.getInt("cc"));
-                System.out.println();
-			}
+            while (rs.next()) {
+                System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s\n",
+                        rs.getString("vin"), rs.getString("license_plate"),
+                        rs.getBoolean("repair_status"), rs.getString("brand"),
+                        rs.getString("bike_type"), rs.getInt("cc"));
+            }
 
             // Have to do this to write changes to a DB
             conn.commit();
@@ -380,28 +377,24 @@ public class Bike {
     public void viewDirtBikes(Connection conn, Scanner scr) {
         Statement stmt = null;
         ResultSet rs = null;
-        System.out.println("Displaying all street type bikes: ");
+        System.out.println("Displaying all dirt bikes: \n-----------------------------------------");
     
         //check to make sure bike exists
-	    try {
+        try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM bike WHERE bike_type = 'dirt';");
-            System.out.printf("%-20s %-20s %-20s %-20s %-20s", "vin", "license_plate", "repair_status", "brand", "bike_type", "cc");
+            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s\n", "vin", "license_plate", "repair_status", "brand", "bike_type", "cc");
             System.out.println();
             // Display the results
-			while (rs.next()) {
-                System.out.printf("%-20s",  rs.getString("vin"));
-                System.out.printf("%-20s",  rs.getString("license_plate"));
-                System.out.printf("%-20s",  rs.getBoolean("repair_status"));
-                System.out.printf("%-20s",  rs.getString("brand"));
-                System.out.printf("%-20s",  rs.getString("bike_type"));
-                System.out.printf("%-20s",  rs.getInt("cc"));
-                System.out.println();
-			}
-
+            while (rs.next()) {
+                System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s\n",
+                        rs.getString("vin"), rs.getString("license_plate"),
+                        rs.getBoolean("repair_status"), rs.getString("brand"),
+                        rs.getString("bike_type"), rs.getInt("cc"));
+            }
+    
             // Have to do this to write changes to a DB
             conn.commit();
-            
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -410,13 +403,13 @@ public class Bike {
                     stmt.close();
                 if (rs != null)
                     rs.close();
-            }
-            catch (SQLException se2) {
+            } catch (SQLException se2) {
                 se2.printStackTrace();
                 System.out.println("Not all DB resources freed!");
             }
         }
     }
+    
 
     /**
      * Method to view all bikes available on a certain date 
@@ -437,10 +430,12 @@ public class Bike {
             ps = conn.prepareStatement("SELECT vin, bike_type FROM bike WHERE vin NOT IN (SELECT vin FROM assigned_to WHERE course_id IN (SELECT course_id FROM course WHERE course.course_date = ?));");
             ps.setDate(1, date);
             rs = ps.executeQuery();
-            System.out.println("\n\nHere are a list of bikes available on " + date + ": \n------------------------");
-            System.out.printf("%-20s %-20s%n", "vin", "bike_type");
+            System.out.println("\n\nHere are a list of bikes available on " + date + ": \n------------------------------------------------");
+            System.out.printf("%-20s %-20s\n", "vin", "bike_type");
+            System.out.println();
             while (rs.next()) {
-                System.out.printf("%-20s %-20s%n", rs.getString("vin"), rs.getString("bike_type"));
+                System.out.printf("%-20s %-20s\n",
+                        rs.getString("vin"), rs.getString("bike_type"));
             }
             conn.commit();
         } catch (ParseException e) {
@@ -470,20 +465,18 @@ public class Bike {
     public void viewBikeRepair(Connection conn, Scanner scr) {
         Statement stmt = null;
         ResultSet rs = null;
-        System.out.println("Displaying all bikes in repair: ");
+        System.out.println("Displaying all bikes in repair: \n-----------------------------------------");
     
 	    try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT bike.vin, bike.bike_type, repair_bike.problem_date, repair_bike.problem_description FROM repair_bike INNER JOIN bike ON bike.vin = repair_bike.vin WHERE repair_bike.repair_date IS NULL OR repair_bike.repair_date > CURDATE();");
-            System.out.printf("%-20s %-20s %-20s", "vin", "bike_type", "problem_date", "problem_description");
+            System.out.printf("%-20s %-20s %-20s %-20s\n", "vin", "bike_type", "problem_date", "problem_description");
             System.out.println();
             // Display the results
 			while (rs.next()) {
-                System.out.printf("%-20s",  rs.getString("vin"));
-                System.out.printf("%-20s",  rs.getString("bike_type"));
-                System.out.printf("%-20s",  rs.getDate("problem_date"));
-                System.out.printf("%-20s",  rs.getString("problem_description"));
-                System.out.println();
+                System.out.printf("%-20s %-20s %-20s %-20s\n",
+                        rs.getString("vin"), rs.getString("bike_type"),
+                        rs.getDate("problem_date"), rs.getString("problem_description"));
 			}
 
             // Have to do this to write changes to a DB
@@ -544,20 +537,15 @@ public class Bike {
             ps = conn.prepareStatement("SELECT bike.vin, bike.bike_type, bike.repair_status, repair_bike.problem_date, repair_bike.problem_description, repair_bike.repair_date, course.course_id, course.course_date FROM bike LEFT JOIN repair_bike ON bike.vin = repair_bike.vin LEFT JOIN assigned_to ON bike.vin = assigned_to.vin LEFT JOIN course ON assigned_to.course_id = course.course_id WHERE bike.vin = ? LIMIT 0, 500;");
             ps.setString(1, vin);
             rs = ps.executeQuery();
-            System.out.println("Displaying the history of the bike requested: ");
-            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s", "vin", "bike_type", "repair_status", "problem_date", "problem_description", "repair_date", "course_id", "course_date");
+            System.out.println("Displaying the history of the bike requested: \n-----------------------------------------------");
+            System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n", "vin", "bike_type", "repair_status", "problem_date", "problem_description", "repair_date", "course_id", "course_date");
             System.out.println();
             // Display the results
             while (rs.next()) {
-                System.out.printf("%-20s",  rs.getString("vin"));
-                System.out.printf("%-20s",  rs.getString("bike_type"));
-                System.out.printf("%-20s",  rs.getBoolean("repair_status"));
-                System.out.printf("%-20s",  rs.getDate("problem_date"));
-                System.out.printf("%-20s",  rs.getString("problem_description"));
-                System.out.printf("%-20s",  rs.getDate("repair_date"));
-                System.out.printf("%-20s",  rs.getInt("course_id"));
-                System.out.printf("%-20s",  rs.getDate("course_date"));
-                System.out.println();
+                System.out.printf("%-20s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n",
+                        rs.getString("vin"), rs.getString("bike_type"), rs.getBoolean("repair_status"),
+                        rs.getDate("problem_date"), rs.getString("problem_description"), 
+                        rs.getDate("repair_date"), rs.getInt("course_id"), rs.getDate("course_date"));
             }
             ps.clearParameters();
             ps.close();
@@ -580,16 +568,31 @@ public class Bike {
     }
 
     /**
-     * Method to ask user which edit option they would like
-     * @param conn the connection to the database
-     * @param scr the Scanner object to read user input
+     * Method to edit bike based on provided vin
+     * @param conn connection made to the db
+     * @param scr scan to user input
      */
     public void editBike(Connection conn, Scanner scr) {
+        String vin = "";
+        
+        //get user input for vin
+        while (true) {
+            System.out.println("Please enter the vin of the bike you want to edit: ");
+            vin = scr.next();
+            scr.nextLine(); // consume extra newline
+            
+            if (!isValidVin(conn, vin)) {
+                System.out.println("Invalid VIN. Please enter a valid VIN.");
+            } else {
+                break;
+            }
+        }
+        
         boolean isComplete = false;
         String userOpt = "-1";
         do {
             System.out.println("-----------------------------------------");
-            System.out.println("Edit Bike Menu");
+            System.out.println(vin + " -> Edit Bike Menu");
             System.out.println("-----------------------------------------");
             System.out.println("\t1 - Edit Bike's License Plate Number");
             System.out.println("\t2 - Edit Bike's Repair Status");
@@ -602,10 +605,10 @@ public class Bike {
             //validate user input
             switch (userOpt) {
                 case "1":
-                    editBikeLicensePlate(conn, scr);
+                    editBikeLicensePlate(conn, scr, vin);
                     break;
                 case "2":
-                    editBikeRepairStatus(conn, scr);
+                    editBikeRepairStatus(conn, scr, vin);
                     break;
                 case "0":
                     //exit to main menu
@@ -621,24 +624,58 @@ public class Bike {
     }
 
     /**
-     * Method to edit bike's license plate number
-     * @param conn the connection the the
-     * @param scr
+     * Method to check if a given VIN is valid (i.e. exists in the database).
+     * @param conn the connection to the database
+     * @param vin the VIN to check
+     * @return true if the VIN is valid, false otherwise
      */
-    private void editBikeLicensePlate(Connection conn, Scanner scr) {
+    private boolean isValidVin(Connection conn, String vin) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        boolean isValid = false;
+        
+        try {
+            ps = conn.prepareStatement("SELECT COUNT(*) FROM bike WHERE vin = ?");
+            ps.setString(1, vin);
+            rs = ps.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                // bike exists in database
+                isValid = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) 
+                    rs.close();
+                if (ps != null)
+                    ps.close();
+            }
+            catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
+        return isValid;
+    }
+
+    /**
+     * Method to edit bike's license plate number
+     * @param conn the connection to the database
+     * @param scr scan user's input
+     * @param vin vin of bike to edit
+     */
+    private void editBikeLicensePlate(Connection conn, Scanner scr, String vin) {
         PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
         ResultSet rs = null;
-        String vin = "";
         String license_plate = "";
-        boolean bikeExists = true;
+        boolean bikeExists = false;
+        String userOpt = "";
+        boolean validInput = false;
 
         //get user input
-        System.out.println("Please enter the vin of the bike you want to edit: ");
-        vin = scr.next();
-        scr.nextLine(); // consume extra newline
-
-        System.out.println("Please enter the bike's new license plate: ");
+        System.out.println("Please enter the new license plate number for bike " + vin + " : ");
         license_plate = scr.nextLine();
 
         try {
@@ -652,11 +689,11 @@ public class Bike {
             }           
             if (rs != null && i > 0) {
                 //bike exists
-                System.out.println("Bike already exists! Returning to menu...");
                 bikeExists = true;
                 psCheckDupe.clearParameters();
                 psCheckDupe.close();
-            }if (bikeExists) {
+            }
+            if (bikeExists) {
                 ps = conn.prepareStatement("UPDATE bike SET license_plate = ? WHERE vin = ?;");
                 ps.setString(1, license_plate);
                 ps.setString(2, vin);
@@ -688,34 +725,31 @@ public class Bike {
      * Method to edit a bike's repair status
      * @param conn the connection to the database
      * @param scr the Scanner object to read user input
+     * @param vin vin of bike to edit
      */
-    private void editBikeRepairStatus(Connection conn, Scanner scr) {
+    private void editBikeRepairStatus(Connection conn, Scanner scr, String vin) {
         PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
         ResultSet rs = null;
-        String vin = "";
         boolean bikeExists = false;
         boolean repair_status = false;
+        String userOpt = "";
+        boolean validInput = false;
 
         Scanner scanner = new Scanner(System.in);
         int selection;
 
         //get user input
-        System.out.println("Please enter the vin of the bike you want to edit: ");
-        vin = scr.next();
-        scr.nextLine(); // co
-
-        //get user input
         do {
-            System.out.println("Please select the new repair status of the bike:");
-            System.out.println("1. Yes, the bike is in repair");
-            System.out.println("2. No, the bike is NOT in repair");
+            System.out.println("Please select the new repair status of bike " + vin + " :");
+            System.out.println("1. Yes, bike " + vin + " is in repair");
+            System.out.println("2. No, bike " + vin + " is NOT in repair");
             selection = scanner.nextInt();
             if (selection == 1) {
-                System.out.println("You have selected the bike is in repair.");
+                System.out.println("You have selected bike " + vin + " is in repair.");
                 repair_status = true;
             } else if (selection == 2) {
-                System.out.println("You have selected the bike is NOT in repair.");
+                System.out.println("You have selected bike " + vin + " is NOT in repair.");
                 repair_status = false;
             } else {
                 System.out.println("Invalid selection. Please select a valid option.");
@@ -733,11 +767,11 @@ public class Bike {
             }           
             if (rs != null && i > 0) {
                 //bike exists
-                System.out.println("Bike already exists! Returning to menu...");
                 bikeExists = true;
                 psCheckDupe.clearParameters();
                 psCheckDupe.close();
-            }if (bikeExists) {
+            }
+            if (bikeExists) {
                 ps = conn.prepareStatement("UPDATE bike SET repair_status = ? WHERE vin = ?;");
                 ps.setBoolean(1, repair_status);
                 ps.setString(2, vin);
