@@ -2,8 +2,10 @@ package ser322;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.util.InputMismatchException;
 import java.util.Locale;
 import java.util.Scanner;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -97,100 +99,175 @@ public class Bike {
         String brand = "";
         BikeType bike_type = null;
         int cc = -1;
-        boolean bikeExists = false;
-
-        //get user input
-        System.out.println("Please enter the bike's vin number: ");
-        vin = scr.next();
-        scr.nextLine(); // consume extra newline
-
-        System.out.println("Please enter the bike's license plate: ");
-        license_plate = scr.nextLine();
-
-        Scanner scanner = new Scanner(System.in);
         int selection;
 
-        //add repair status of bike
-        do {
-            System.out.println("Please select the repair status of the bike:");
-            System.out.println("1. Yes, the bike is in repair");
-            System.out.println("2. No, the bike is NOT in repair");
-            selection = scanner.nextInt();
-            if (selection == 1) {
-                System.out.println("You have selected the bike is in repair.");
-                repair_status = true;
-            } else if (selection == 2) {
-                System.out.println("You have selected the bike is NOT in repair.");
-                repair_status = false;
-            } else {
-                System.out.println("Invalid selection. Please select a valid option.");
+        // get the vin number and ask the user to confirm
+        boolean vinConfirmed = false;
+        while (!vinConfirmed) {
+            while (true) {
+                System.out.println("Please enter the VIN of the bike: ");
+                vin = scr.next();
+                scr.nextLine(); // consume extra newline
+                
+                if (isVinExist(conn, vin)) {
+                    System.out.println("Invalid VIN (Bike already exists). Please enter a valid VIN.");
+                } else {
+                    break;
+                }
             }
-        } while (selection != 1 && selection != 2);
-
-        //add brand of the bike
-        System.out.println("Please enter the brand of the bike: ");
-        brand = scr.nextLine();
-
-        //add type of bike
-        do {
-            System.out.println("Please select the type of the bike: ");
-            System.out.println("1. Street");
-            System.out.println("2. Dirt");
-            selection = scanner.nextInt();
-            if (selection == 1) {
-                System.out.println("You have selected a street bike.");
-                bike_type = BikeType.STREET;
-            } else if (selection == 2) {
-                System.out.println("You have selected a dirt bike.");
-                bike_type = BikeType.DIRT;
+            // repeat the vin to the user and ask for confirmation
+            System.out.println("You entered " + vin + " as the VIN. Is this correct? (Y/N)");
+            String confirmation = scr.next();
+            if (confirmation.equalsIgnoreCase("Y")) {
+                vinConfirmed = true;
             } else {
-                System.out.println("Invalid selection. Please select a valid option.");
+                System.out.println("Please re-enter the vin.");
             }
-        } while (selection != 1 && selection != 2);
-
-        System.out.println("Please enter the bike's cc: ");
-        while (!scr.hasNextInt()) {
-            System.out.println("Error: That was not a number. Please enter an integer!");
-            scr.next(); 
+            scr.nextLine(); // consume extra newline
         }
-        cc = scr.nextInt();
-        scr.nextLine(); //
+
+        // get the license plate number and ask the user to confirm
+        boolean licensePlateConfirmed = false;
+        while (!licensePlateConfirmed) {
+            System.out.println("Please enter the bike's license plate: ");
+            license_plate = scr.nextLine();
+
+            // repeat the license plate number to the user and ask for confirmation
+            System.out.println("You entered " + license_plate + " as the license plate number. Is this correct? (Y/N)");
+            String confirmation = scr.next();
+            if (confirmation.equalsIgnoreCase("Y")) {
+                licensePlateConfirmed = true;
+            } else {
+                System.out.println("Please re-enter the license plate number.");
+            }
+            scr.nextLine(); // consume extra newline
+        }
+
+        //add repair status of bike
+        boolean repairConfirmed = false;
+        while (!repairConfirmed) {
+            do {
+                System.out.println("Please select the repair status of the bike:");
+                System.out.println("1. Yes, the bike is in repair");
+                System.out.println("2. No, the bike is NOT in repair");
+                selection = scr.nextInt();
+                if (selection == 1) {
+                    System.out.println("You have selected the bike is in repair.");
+                    repair_status = true;
+                } else if (selection == 2) {
+                    System.out.println("You have selected the bike is NOT in repair.");
+                    repair_status = false;
+                } else {
+                    System.out.println("Invalid selection. Please select a valid option.");
+                }
+            } while (selection != 1 && selection != 2);
+            // repeat the repair status to the user and ask for confirmation
+            if (repair_status) {
+                System.out.println("You entered this bike is in repair. Is this correct? (Y/N)");
+            } else {
+                System.out.println("You entered this bike is NOT in repair. Is this correct? (Y/N)");
+            }
+            String confirmation = scr.next();
+            if (confirmation.equalsIgnoreCase("Y")) {
+                repairConfirmed = true;
+            } else {
+                System.out.println("Please re-enter the repair status.");
+            }
+            scr.nextLine(); // consume extra newl
+        }
+
+        // get the brand and ask the user to confirm
+        boolean brandConfirmed = false;
+        while (!brandConfirmed) {
+            System.out.println("Please enter the bike's brand: ");
+            brand = scr.nextLine();
+
+            // repeat the brand to the user and ask for confirmation
+            System.out.println("You entered " + brand + " as the brand name. Is this correct? (Y/N)");
+            String confirmation = scr.next();
+            if (confirmation.equalsIgnoreCase("Y")) {
+                brandConfirmed = true;
+            } else {
+                System.out.println("Please re-enter the brand name.");
+            }
+            scr.nextLine(); // consume extra newline
+        }
+
+
+        // get bike type and ask the user to confirm
+        boolean typeConfirmed = false;
+        while (!typeConfirmed) {
+            do {
+                System.out.println("Please select the type of the bike: ");
+                System.out.println("1. Street");
+                System.out.println("2. Dirt");
+                selection = scr.nextInt();
+                if (selection == 1) {
+                    System.out.println("You have selected a street bike.");
+                    bike_type = BikeType.STREET;
+                } else if (selection == 2) {
+                    System.out.println("You have selected a dirt bike.");
+                    bike_type = BikeType.DIRT;
+                } else {
+                    System.out.println("Invalid selection. Please select a valid option.");
+                }
+            } while (selection != 1 && selection != 2);
+            // repeat the bike type to the user and ask for confirmation
+            if (selection == 1) {
+                System.out.println("You entered this bike as a STREET type. Is this correct? (Y/N)");
+            } else {
+                System.out.println("You entered this bike as a DIRT type. Is this correct? (Y/N)");
+            }
+            String confirmation = scr.next();
+            if (confirmation.equalsIgnoreCase("Y")) {
+                typeConfirmed = true;
+            } else {
+                System.out.println("Please re-enter the bike type.");
+            }
+            scr.nextLine(); // consume extra newl
+        }
+
+        // get the cc and ask the user to confirm
+        boolean ccConfirmed = false;
+        while (!ccConfirmed) {
+            System.out.println("Please enter the bike's cc: ");
+            try {
+                cc = scr.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter an integer value.");
+                scr.nextLine(); // consume the invalid input
+                continue;
+            }
+
+            // repeat the brand to the user and ask for confirmation
+            System.out.println("You entered " + cc + " as the cc. Is this correct? (Y/N)");
+            String confirmation = scr.next();
+            if (confirmation.equalsIgnoreCase("Y")) {
+                ccConfirmed = true;
+            } else {
+                System.out.println("Please re-enter the cc.");
+            }
+            scr.nextLine(); // consume extra newline
+        }
 
         //check to make sure bike doesn't already exist
         //if doesn't exist write to db
 	    try {
-            psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-            psCheckDupe.setString(1, vin);
-            rs = psCheckDupe.executeQuery();
-            //get size of result set
-            int i = 0;
-            while(rs.next()) {
-                i++;
-            }           
-            if (rs != null && i > 0) {
-                //bike exists
-                System.out.println("Bike already exists! Returning to menu...");
-                bikeExists = true;
-                psCheckDupe.clearParameters();
-                psCheckDupe.close();
+            ps = conn.prepareStatement("INSERT INTO bike VALUES (?, ?, ?, ?, ?, ?);");
+            ps.setString(1, vin);
+            ps.setString(2, license_plate);
+            ps.setBoolean(3, repair_status);
+            ps.setString(4, brand);
+            ps.setString(5, bike_type.name());
+            ps.setInt(6, cc);
+            if (ps.executeUpdate() > 0) {
+                System.out.println("Inserted bike " + vin);
             }
-            if (!bikeExists) {
-                ps = conn.prepareStatement("INSERT INTO bike VALUES (?, ?, ?, ?, ?, ?);");
-                ps.setString(1, vin);
-                ps.setString(2, license_plate);
-                ps.setBoolean(3, repair_status);
-                ps.setString(4, brand);
-                ps.setString(5, bike_type.name());
-                ps.setInt(6, cc);
-                if (ps.executeUpdate() > 0) {
-                    System.out.println("Inserted bike OK");
-                }
-                ps.clearParameters();
-                ps.close();
+            ps.clearParameters();
+            ps.close();
 
-                // Have to do this to write changes to a DB
-                conn.commit();
-            }
+            // Have to do this to write changes to a DB
+            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -216,44 +293,46 @@ public class Bike {
     public void removeBike(Connection conn, Scanner scr) {
         PreparedStatement ps = null;
         PreparedStatement psCheckDupe = null;
-        ResultSet rs = null;
         String vin = "";
-        boolean bikeExists = true;
 
-        //get user input
-        System.out.println("Please enter the bike's vin: ");
-        vin = scr.next();
-        scr.nextLine(); // consume extra newline
 
-        //check to make sure bike exists
-	    try {
-            psCheckDupe = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
-            psCheckDupe.setString(1, vin);
-            rs = psCheckDupe.executeQuery();
-            //get size of result set
-            int i = 0;
-            while(rs.next()) {
-                i++;
-            }           
-            if (rs == null || i == 0) {
-                //bike does not exist
-                System.out.println("Bike does not exist! Returning to menu...");
-                bikeExists = false;
-                psCheckDupe.clearParameters();
-                psCheckDupe.close();
-            }
-            if (bikeExists) {
-                ps = conn.prepareStatement("DELETE FROM bike WHERE vin = ?;");
-                ps.setString(1, vin);
-                if (ps.executeUpdate() > 0) {
-                    System.out.println("Removed bike OK");
+        // get vin of bike to remove and ask user to confirm
+        boolean removeConfirmed = false;
+        while (!removeConfirmed) {
+            while (true) {
+                System.out.println("Please enter the VIN of the bike you want to remove: ");
+                vin = scr.next();
+                scr.nextLine(); // consume extra newline
+                
+                if (!isVinExist(conn, vin)) {
+                    System.out.println("Invalid VIN (Bike does not exist!). Please enter a valid VIN.");
+                } else {
+                    break;
                 }
-                ps.clearParameters();
-                ps.close();
-
-                // Have to do this to write changes to a DB
-                conn.commit();
             }
+            // repeat the brand to the user and ask for confirmation
+            System.out.println("Are you sure you want to remove bike " + vin + "? (Y/N)");
+            String confirmation = scr.next();
+            if (confirmation.equalsIgnoreCase("Y")) {
+                removeConfirmed = true;
+            } else {
+                System.out.println("Please re-enter the VIN of the bike you want to remove.");
+            }
+            scr.nextLine(); // consume extra newline
+        }
+        
+        // remove bike
+	    try {
+            ps = conn.prepareStatement("DELETE FROM bike WHERE vin = ?;");
+            ps.setString(1, vin);
+            if (ps.executeUpdate() > 0) {
+                System.out.println("Removed bike " + vin);
+            }
+            ps.clearParameters();
+            ps.close();
+
+            // Have to do this to write changes to a DB
+            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -268,7 +347,6 @@ public class Bike {
                 System.out.println("Not all DB resources freed!");
             }
         }
-
     }
 
     /**
@@ -511,10 +589,17 @@ public class Bike {
     String vin = "";
     boolean bikeExists = true;
 
-    //get user input
-    System.out.println("Please enter the bike's vin: ");
-    vin = scr.next();
-    scr.nextLine(); // consume extra newline
+    while (true) {
+        System.out.println("Please enter the vin of the bike you want to see the history of: ");
+        vin = scr.next();
+        scr.nextLine(); // consume extra newline
+        
+        if (!isVinExist(conn, vin)) {
+            System.out.println("Invalid VIN. Please enter a valid VIN.");
+        } else {
+            break;
+        }
+    }
 
     //check to make sure bike exists
 	try {
@@ -581,7 +666,7 @@ public class Bike {
             vin = scr.next();
             scr.nextLine(); // consume extra newline
             
-            if (!isValidVin(conn, vin)) {
+            if (!isVinExist(conn, vin)) {
                 System.out.println("Invalid VIN. Please enter a valid VIN.");
             } else {
                 break;
@@ -629,7 +714,7 @@ public class Bike {
      * @param vin the VIN to check
      * @return true if the VIN is valid, false otherwise
      */
-    private boolean isValidVin(Connection conn, String vin) {
+    private boolean isVinExist(Connection conn, String vin) {
         PreparedStatement ps = null;
         ResultSet rs = null;
         boolean isValid = false;
@@ -671,8 +756,6 @@ public class Bike {
         ResultSet rs = null;
         String license_plate = "";
         boolean bikeExists = false;
-        String userOpt = "";
-        boolean validInput = false;
 
         //get user input
         System.out.println("Please enter the new license plate number for bike " + vin + " : ");
@@ -733,10 +816,6 @@ public class Bike {
         ResultSet rs = null;
         boolean bikeExists = false;
         boolean repair_status = false;
-        String userOpt = "";
-        boolean validInput = false;
-
-        Scanner scanner = new Scanner(System.in);
         int selection;
 
         //get user input
@@ -744,7 +823,7 @@ public class Bike {
             System.out.println("Please select the new repair status of bike " + vin + " :");
             System.out.println("1. Yes, bike " + vin + " is in repair");
             System.out.println("2. No, bike " + vin + " is NOT in repair");
-            selection = scanner.nextInt();
+            selection = scr.nextInt();
             if (selection == 1) {
                 System.out.println("You have selected bike " + vin + " is in repair.");
                 repair_status = true;
@@ -812,11 +891,40 @@ public class Bike {
         int repair_cost = 0;
         Date repair_date = null;
         String problem_description = "";
+        boolean bikeExists = false;
     
         // get user input
         System.out.println("Please enter the bike's vin number: ");
         vin = scr.next();
         scr.nextLine(); // consume extra newline
+
+        try {
+            ps = conn.prepareStatement("SELECT * FROM bike WHERE vin = ?");
+            ps.setString(1, vin);
+            rs = ps.executeQuery();
+            //get size of result set
+            int i = 0;
+            while(rs.next()) {
+                i++;
+            }           
+            if (rs == null || i == 0) {
+                //bike does not exist
+                System.out.println("Bike does not exist! Returning to menu...");
+                bikeExists = false;
+                ps.clearParameters();
+                ps.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+            } catch (SQLException se2) {
+                se2.printStackTrace();
+                System.out.println("Not all DB resources freed!");
+            }
+        }
     
         // add error message for incorrect date format
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
