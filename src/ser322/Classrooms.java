@@ -3,7 +3,6 @@ package ser322;
 import java.util.Locale;
 import java.util.Scanner;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,8 +10,22 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+/* 
+ *  Class Description: Classroom contains multiple methods including create, edit, delete, and multiple different view.
+ *  @author: Batbold Altansukh
+ *  @version: 1.0  2/17/2023
+ */
 public class Classrooms extends Option implements OptionProtocol {
 
+    Boolean isClassRoomDone = false;
+
+    /**
+     * This method displays menu and get data from user input then call other
+     * methods.
+     *
+     * @param conn Description of conn, connect to sql database
+     * @param scr  Description of scr, scanner to read input data
+     */
     @Override
     public void openMenu(Connection conn, Scanner scr) {
 
@@ -45,9 +58,12 @@ public class Classrooms extends Option implements OptionProtocol {
 
     }
 
+    /**
+     * This method displays Main Menu.
+     *
+     */
     @Override
     public void displayMenuOptions() {
-        // TODO Auto-generated method stub
         System.out.println("-----------------------------------------");
         System.out.println("Manage Classrooms");
         System.out.println("-----------------------------------------");
@@ -61,6 +77,10 @@ public class Classrooms extends Option implements OptionProtocol {
 
     }
 
+    /**
+     * This method displays Classroom Menu.
+     *
+     */
     public void displayClassroomOptions() {
         System.out.println("-----------------------------------------");
         System.out.println("View Classroom Menu");
@@ -68,15 +88,19 @@ public class Classrooms extends Option implements OptionProtocol {
         System.out.println("\t1 - View all Classroom");
         System.out.println("\t2 - View Available Seats on Given Date");
         System.out.println("\t3 - View  Available Classrooms on Given Date");
-        System.out.println("\t0 - Return to Main Menu");
+        System.out.println("\t0 - Return to Manage Classroom Menu");
         System.out.println("Please select a valid menu option (0-3)");
     }
 
+    /**
+     * This method display submenu of classroom, get data from user input then call
+     * other methods.
+     *
+     * @param conn Description of conn, connect to sql database
+     * @param scr  Description of scr, scanner to read input data
+     */
     @Override
     public void view(Connection conn, Scanner scr) {
-
-        
-
         do {
             displayClassroomOptions();
             userOpt = scr.next();
@@ -93,15 +117,29 @@ public class Classrooms extends Option implements OptionProtocol {
                     viewAvailableClassroom(conn);
                     break;
                 case "0":
-                    returnToMainMenu();
+                    returnToClassroomMenu();
                     break;
                 default:
                     invalidInput("3");
                     break;
             }
-        } while (isDone == false);
+        } while (isClassRoomDone == false);
     }
 
+    /**
+     * This method returns to Classroom Menu from submenu.
+     *
+     */
+    public void returnToClassroomMenu() {
+        isClassRoomDone = true;
+        System.out.println("Returning to Classroom menu..");
+    }
+
+    /**
+     * This method display all classroom in the system.
+     *
+     * @param conn Description of conn, connect to sql database
+     */
     public void viewAllClassroom(Connection conn) {
 
         System.out.println("-----------------------------------------");
@@ -118,6 +156,11 @@ public class Classrooms extends Option implements OptionProtocol {
         }
     }
 
+    /**
+     * This method display available seats in each classroom on specific date.
+     *
+     * @param conn Description of conn, connect to sql database
+     */
     public void viewAvailableSeats(Connection conn) {
 
         System.out.println("-----------------------------------------");
@@ -149,6 +192,11 @@ public class Classrooms extends Option implements OptionProtocol {
         }
     }
 
+    /**
+     * This method display available classroom on specific date.
+     *
+     * @param conn Description of conn, connect to sql database
+     */
     public void viewAvailableClassroom(Connection conn) {
         System.out.println("-----------------------------------------");
         System.out.println("View Avaialble Classroom in Given Day");
@@ -179,46 +227,54 @@ public class Classrooms extends Option implements OptionProtocol {
         }
     }
 
+    /**
+     * This method create classroom using user's input.
+     *
+     * @param conn Description of conn, connect to sql database
+     * @param scr  Description of scr, scanner to read input data
+     */
     @Override
     public void create(Connection conn, Scanner scr) {
 
-        // Input Store Variables
-        String _classroom_id = null;
-        Integer _maxCapacity = null;
+        String classroom_id = null;
+        Integer maxCapacity = null;
 
-        // Statement & Duplicate Check Variables
         PreparedStatement ps = null;
         PreparedStatement psdc = null;
         Boolean duplicate = null;
 
-        // Prompt for Input
         System.out.print("Enter classroom id: \n");
-        _classroom_id = scr.next();
-        System.out.print("Enter classroom max capacity: \n");
-        _maxCapacity = scr.nextInt();
+        classroom_id = scr.next();
 
-        // Check for Duplicate
-        String lookupStmt = "SELECT * FROM range_location WHERE range_id = ?";
+        while (!Character.isLetter(classroom_id.charAt(0))) {
+            System.out.println("Enter letter! ");
+            System.out.println("-----------------------------------------");
+            System.out.print("Enter classroom id: \n");
+            classroom_id = scr.next();
+        }
+
+        System.out.print("Enter classroom max capacity: \n");
+        maxCapacity = scr.nextInt();
+
+        String lookupStmt = "SELECT * FROM classroom_location WHERE classroom_id = ?";
         try {
             psdc = conn.prepareStatement(lookupStmt);
-            psdc.setString(1, _classroom_id);
+            psdc.setString(1, classroom_id);
             duplicate = checkDuplicate(psdc);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Return if Duplicate Found
         if (duplicate) {
             System.out.println("\nDUPLICATE ENTRY:: Classroom with provided ID already exists. Returning to menu.\n");
             return;
         }
 
-        // Proceed with Insertion Flow
         String insertStmt = "INSERT INTO classroom_location VALUES (?, ?);";
         try {
             ps = conn.prepareStatement(insertStmt);
-            ps.setString(1, _classroom_id);
-            ps.setInt(2, _maxCapacity);
+            ps.setString(1, classroom_id);
+            ps.setInt(2, maxCapacity);
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -227,32 +283,36 @@ public class Classrooms extends Option implements OptionProtocol {
             } else {
                 System.out.println("Failed to add classroom to DB");
             }
-            // try {
-            // // Ensure Statement is Closed
-            // if (ps != null) {
-            // ps.close();
-            // }
-            // } catch (SQLException se2) {
-            // se2.printStackTrace();
-            // System.out.println("Not all DB resources freed!");
-            // }
+            try {
+                // Ensure Statement is Closed
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException se2) {
+                System.out.println("Not all DB resources freed!");
+            }
         }
     }
 
+    /**
+     * This method deletes classroom using user's input.
+     *
+     * @param conn Description of conn, connect to sql database
+     * @param scr  Description of scr, scanner to read input data
+     */
     @Override
     public void delete(Connection conn, Scanner scr) {
-        // Input Store Variables
-        String _pk = null;
 
+        String classroom_id = null;
         PreparedStatement ps = null;
 
         System.out.println("Enter classroom to delete: (classroom_id):");
-        _pk = scr.next();
+        classroom_id = scr.next();
 
         String deleteStmt = "DELETE FROM classroom_location WHERE classroom_id = ?";
         try {
             ps = conn.prepareStatement(deleteStmt);
-            ps.setString(1, _pk);
+            ps.setString(1, classroom_id);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -265,15 +325,20 @@ public class Classrooms extends Option implements OptionProtocol {
         }
     }
 
+    /**
+     * This method update classroom using user's input.
+     *
+     * @param conn Description of conn, connect to sql database
+     * @param scr  Description of scr, scanner to read input data
+     */
     public void update(Connection conn, Scanner scr) {
-        // Input Store Variables
-        String _pk = null;
-        Integer _newCapacity = null;
 
+        String classroom_id = null;
+        Integer _newCapacity = null;
         PreparedStatement ps = null;
 
         System.out.println("Enter ID of classroom you'd like to update:");
-        _pk = scr.next();
+        classroom_id = scr.next();
         System.out.println("Enter new classroom max capacity: ");
         _newCapacity = scr.nextInt();
 
@@ -281,7 +346,7 @@ public class Classrooms extends Option implements OptionProtocol {
         try {
             ps = conn.prepareStatement(updateStmt);
             ps.setInt(1, _newCapacity);
-            ps.setString(2, _pk);
+            ps.setString(2, classroom_id);
 
             if (updateDB(ps, conn)) {
                 System.out.println("Record updated successfully.");
