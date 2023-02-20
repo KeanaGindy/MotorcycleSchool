@@ -102,8 +102,7 @@ public class Ranges extends Option implements OptionProtocol {
         ResultSet rs = null;
         java.sql.Date _date = null;
         if (vt != ViewType.all) {
-            System.out.println("Enter in a date: (YYYY-MM-DD)");
-            String _dateStr = scr.nextLine();
+            String _dateStr = scanForString(scr, "Enter in a date: YYYY-MM-DD");
             _date = parseDate(_dateStr);
         }
 
@@ -133,25 +132,18 @@ public class Ranges extends Option implements OptionProtocol {
         Integer _newCapacity = null;
         String _newType = null;
         PreparedStatement ps = null;
-
-        System.out.println("Enter ID of the range you'd like to update:");
-        _rangeId = scr.nextInt();
-        consumeNewLine(scr);
+        _rangeId = scanForInt(scr, "Enter ID of the range you'd like to update:");
 
         try {
             ps = ut.getPreparedStatement(conn);
             ps.setInt(2, _rangeId);
             switch (ut) {
                 case capacity:
-                    System.out.println("Enter the new capacity:");
-                    _newCapacity = scr.nextInt();
-                    consumeNewLine(scr);
+                    _newCapacity = scanForInt(scr, "Enter the new capacity:");
                     ps.setInt(1, _newCapacity);
                     break;
                 case type:
-                    System.out.println("Enter the new type:");
-                    _newType = scr.nextLine();
-
+                    _newType = scanForRangeType(scr);
                     ps.setString(1, _newType);
                     break;
             }
@@ -167,18 +159,14 @@ public class Ranges extends Option implements OptionProtocol {
 
     public void delete(Connection conn, Scanner scr) {
         // Input Store Variables
-        Integer _pk = null;
-
+        Integer _rangeId = null;
         PreparedStatement ps = null;
-
-        System.out.println("Enter range to delete: pk(range_id):");
-        _pk = scr.nextInt();
-        consumeNewLine(scr);
+        _rangeId = scanForInt(scr, "Enter range ID to delete:");
 
         String deleteStmt = "DELETE FROM range_location WHERE range_id = ?";
         try {
             ps = conn.prepareStatement(deleteStmt, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ps.setInt(1, _pk);
+            ps.setInt(1, _rangeId);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -203,14 +191,25 @@ public class Ranges extends Option implements OptionProtocol {
         Boolean duplicate = null;
 
         // Prompt for Input
-        System.out.print("Enter range id: \n");
-        _rangeId = scr.nextInt();
-        consumeNewLine(scr);
-        System.out.print("Enter range type: \n");
-        _rangeType = scr.nextLine();
-        System.out.print("Enter max capacity: \n");
-        _maxCapacity = scr.nextInt();
-        consumeNewLine(scr);
+        _rangeId = scanForInt(scr, "Enter range ID:");
+        _rangeType = scanForRangeType(scr);
+
+        for (int atmp = 0; atmp < 3; atmp++) {
+            _maxCapacity = scanForInt(scr, "Enter max capacity:");
+            if (_rangeType.toLowerCase().equals("dirt")) {
+                if (_maxCapacity > 15) {
+                    System.out.println("ERROR: Dirt Ranges have a Max Capacity of 15.");
+                } else {
+                    break;
+                }
+            } else if (_rangeType.toLowerCase().equals("street")) {
+                if (_maxCapacity > 30) {
+                    System.out.println("ERROR: Street Ranges have a Max Capacity of 30.");
+                } else {
+                    break;
+                }
+            }
+        }
 
         // Check for Duplicate
         String lookupStmt = "SELECT * FROM range_location WHERE range_id = ?";
@@ -288,7 +287,7 @@ public class Ranges extends Option implements OptionProtocol {
 
     enum ViewType {
         available(
-                "SELECT range_location.range_id, range_location.range_type, uses.in_session, (range_location.max_capacity - (SELECT COUNT(*) FROM enrolled_in JOIN course ON enrolled_in.course_id = course.course_id JOIN uses ON course.course_id = uses.course_id WHERE uses.range_id = range_location.range_id AND course.course_date = ?)) AS availability FROM range_location JOIN uses ON range_location.range_id = uses.range_id"),
+                "SELECT range_location.range_id, range_location.range_type, uses.in_session, (range_location.max_capacity - (SELECT COUNT(*) FROM enrolled_in JOIN course ON enrolled_in.course_id = course.course_id JOIN uses ON course.course_id = uses.course_id WHERE uses.range_id = range_location.range_id AND course.course_date = ?)) AS availability FROM range_location JOIN uses ON range_location.range_id = uses.range_id;"),
         all("SELECT * from range_location;"),
         report("SELECT range_location.range_id, CASE WHEN sub_query.session_count = 1 THEN (SELECT CASE in_session WHEN 'AM' THEN 'PM' WHEN 'PM' THEN 'AM' ELSE 'NONE' END FROM uses WHERE uses.range_id = range_location.range_id AND uses.course_id IN (SELECT course.course_id FROM course WHERE course.course_date = ?) LIMIT 1) WHEN sub_query.session_count = 2 THEN 'NONE' ELSE 'AM & PM' END as session_available FROM range_location LEFT JOIN (SELECT uses.range_id, COUNT(uses.in_session) as session_count FROM uses JOIN course ON uses.course_id = course.course_id AND course.course_date = ? GROUP BY uses.range_id) sub_query ON range_location.range_id = sub_query.range_id LIMIT 0, 500");
 

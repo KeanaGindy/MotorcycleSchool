@@ -13,6 +13,7 @@ public class Course extends Option implements OptionProtocol {
     public void openMenu(Connection conn, Scanner scr) {
         do {
             displayMenuOptions();
+
             userOpt = scr.nextLine();
 
             System.out.println("You selected option: " + userOpt);
@@ -128,43 +129,39 @@ public class Course extends Option implements OptionProtocol {
     }
 
     private void handleDateUpdate(Connection conn, Scanner scr) {
-
         PreparedStatement ps = UpdateType.date.getPreparedStatement(conn);
-
         int _courseId = promptCourseId(scr);
-
-        System.out.print("Enter new date: (YYYY-MM-DD)\n");
-        String _dateStr = scr.nextLine();
+        String _dateStr = scanForString(scr, "Enter new date: YYYY-MM-DD");
         java.sql.Date date = parseDate(_dateStr);
-
         try {
             ps.setDate(1, date);
             ps.setInt(2, _courseId);
-            updateDB(ps, conn);
+            if (updateDB(ps, conn)) {
+                System.out.println("Successfully updated Course data in DB");
+            } else {
+                System.out.println("Failed to update Course data in DB");
+            }
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
     }
 
     private void handlePaymentUpdate(Connection conn, Scanner scr) {
         PreparedStatement ps = UpdateType.paymentRecord.getPreparedStatement(conn);
-
         int _studentId = promptStudentId(scr);
         int _courseId = promptCourseId(scr);
-
-        System.out.println("Enter payment status: (1 == paid, 0 == unpaid)");
-        int _paymentComplete = scr.nextInt();
-        consumeNewLine(scr);
-
+        int _paymentComplete = scanForInt(scr, "Enter payment status: (1 == paid, 0 == unpaid)");
         try {
             ps.setInt(1, _paymentComplete);
             ps.setInt(2, _studentId);
             ps.setInt(3, _courseId);
-            updateDB(ps, conn);
+            if (updateDB(ps, conn)) {
+                System.out.println("Successfully updated Course data in DB");
+            } else {
+                System.out.println("Failed to update Course data in DB");
+            }
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
     }
 
@@ -199,7 +196,11 @@ public class Course extends Option implements OptionProtocol {
             ps.setInt(1, _newScore);
             ps.setInt(2, _studentId);
             ps.setInt(3, _courseId);
-            updateDB(ps, conn);
+            if (updateDB(ps, conn)) {
+                System.out.println("Successfully updated Course data in DB");
+            } else {
+                System.out.println("Failed to update Course data in DB");
+            }
         } catch (Exception e) {
             // TODO: handle exception
         }
@@ -207,23 +208,17 @@ public class Course extends Option implements OptionProtocol {
 
     public void delete(Connection conn, Scanner scr) {
         // Input Store Variables
-        Integer _pk = null;
-
+        Integer _courseId = null;
         PreparedStatement ps = null;
-
-        System.out.println("Enter course to delete: pk(course_id):");
-        _pk = scr.nextInt();
-        consumeNewLine(scr);
-
+        _courseId = promptCourseId(scr);
         String deleteStmt = "DELETE FROM course WHERE course_id = ?";
         try {
             ps = conn.prepareStatement(deleteStmt);
-            ps.setInt(1, _pk);
+            ps.setInt(1, _courseId);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         if (updateDB(ps, conn)) {
             System.out.println("Record deleted successfully.");
         } else {
@@ -238,40 +233,28 @@ public class Course extends Option implements OptionProtocol {
         Integer _numStudents = null;
         if (cm.course_type.toLowerCase().equals("street")) {
             System.out.println("\n##### " + "Creating new Street Course \n");
-            System.out.println("Enter the number students you'd like to add to this course: (max 30)");
-            _numStudents = scr.nextInt();
-            consumeNewLine(scr);
+            _numStudents = scanForInt(scr, "Enter the number students you'd like to add to this course: (max 30)");
             addInstructors(conn, scr, cm.course_id, RangeType.street, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
         } else if (cm.course_type.toLowerCase().equals("dirt")) {
             System.out.println("\n##### " + "Creating new Dirt Course \n");
-            System.out.println("Enter the number students you'd like to add to this course: (max 15)");
-            _numStudents = scr.nextInt();
-            consumeNewLine(scr);
+            System.out.println();
+            _numStudents = scanForInt(scr, "Enter the number students you'd like to add to this course: (max 15)");
             addInstructors(conn, scr, cm.course_id, RangeType.dirt, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
         }
     }
 
     private int promptStudentId(Scanner scr) {
-        System.out.println("Enter student ID:");
-        int _studentId = scr.nextInt();
-        consumeNewLine(scr);
-        return _studentId;
+        return scanForInt(scr, "Enter student ID:");
     }
 
     private int promptCourseId(Scanner scr) {
-        System.out.println("Enter course ID:");
-        int _courseId = scr.nextInt();
-        consumeNewLine(scr);
-        return _courseId;
+        return scanForInt(scr, "Enter course ID:");
     }
 
     private int promptNewScore(Scanner scr) {
-        System.out.println("Enter new score:");
-        int _newScore = scr.nextInt();
-        consumeNewLine(scr);
-        return _newScore;
+        return scanForInt(scr, "Enter new score:");
     }
 
     // HELPER METHODS
@@ -294,14 +277,16 @@ public class Course extends Option implements OptionProtocol {
         }
         for (int i = 0; i < 3; i++) {
             InstructorModel im = new InstructorModel();
-            System.out.println("Enter ID for dirt coach:");
             im.course_id = courseId;
-            im.instructor_id = scr.nextInt();
-            consumeNewLine(scr);
+            im.instructor_id = scanForInt(scr, "Enter ID for dirt coach:");
             im.in_session = "BOTH";
             im.instructor_role = "dirt_coach";
             try {
-                updateDB(im.createInstructsEntry(conn, courseId), conn);
+                if (updateDB(im.createInstructsEntry(conn, courseId), conn)) {
+                    System.out.println("Successfully added Course to DB");
+                } else {
+                    System.out.println("Failed to add Course to DB");
+                }                
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -320,28 +305,30 @@ public class Course extends Option implements OptionProtocol {
         for (int i = 0; i < 4; i++) {
             InstructorModel im = new InstructorModel();
             if (i == 0) {
-                System.out.println("Enter ID for street teacher:");
-
                 im.course_id = courseId;
-                im.instructor_id = scr.nextInt();
-                consumeNewLine(scr);
+                im.instructor_id = scanForInt(scr, "Enter ID for street teacher: ");
                 im.in_session = session;
                 im.instructor_role = "street_teacher";
                 try {
-                    updateDB(im.createInstructsEntry(conn, courseId), conn);
+                    if (updateDB(im.createInstructsEntry(conn, courseId), conn)) {
+                        System.out.println("Successfully added Course to DB");
+                    } else {
+                        System.out.println("Failed to add Course to DB");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                System.out.println("Enter ID for street coach #" + i);
-
                 im.course_id = courseId;
-                im.instructor_id = scr.nextInt();
-                consumeNewLine(scr);
+                im.instructor_id = scanForInt(scr, "Enter id for street coach #" + i);
                 im.in_session = session;
                 im.instructor_role = "street_teacher";
                 try {
-                    updateDB(im.createInstructsEntry(conn, courseId), conn);
+                    if (updateDB(im.createInstructsEntry(conn, courseId), conn)) {
+                        System.out.println("Successfully added Course to DB");
+                    } else {
+                        System.out.println("Failed to add Course to DB");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -350,46 +337,24 @@ public class Course extends Option implements OptionProtocol {
     }
 
     public void addStudents(Connection conn, Scanner scr, int courseId, int numStudents) {
-
         boolean addingStudents = true;
         int j = 0;
-
         while (addingStudents && j < numStudents) {
             StudentModel sm = new StudentModel();
+            sm.student_id = scanForInt(scr, "Enter ID for Student #" + (j + 1));
+            sm.is_payment_completed = scanForInt(scr, "Has the student completed payment for the course? (1 == true/0 == false)");
+            sm.written_score = scanForInt(scr, "Enter the student's written score:");
+            sm.exercise_1_score = scanForInt(scr, "Enter the student's score for exercise #1:");
+            sm.exercise_2_score = scanForInt(scr, "Enter the student's score for exercise #2:");
+            sm.exercise_3_score = scanForInt(scr, "Enter the student's score for exercise #3:");
+            sm.exercise_4_score = scanForInt(scr, "Enter the student's score for exercise #4:");
+            sm.exercise_5_score = scanForInt(scr, "Enter the student's score for exercise #5:");
 
-            System.out.println("Enter ID for Student #" + (j + 1));
-            sm.student_id = scr.nextInt();
-            consumeNewLine(scr);
-
-            System.out.println("Has the student completed payment for the course? (1/0)");
-            sm.is_payment_completed = scr.nextInt();
-            consumeNewLine(scr);
-
-            System.out.println("What is the student's written score?");
-            sm.written_score = scr.nextInt();
-            consumeNewLine(scr);
-
-            System.out.println("What is the students score for exercise #1?");
-            sm.exercise_1_score = scr.nextInt();
-            consumeNewLine(scr);
-
-            System.out.println("What is the students score for exercise #2?");
-            sm.exercise_2_score = scr.nextInt();
-            consumeNewLine(scr);
-
-            System.out.println("What is the students score for exercise #3?");
-            sm.exercise_3_score = scr.nextInt();
-            consumeNewLine(scr);
-
-            System.out.println("What is the students score for exercise #4?");
-            sm.exercise_4_score = scr.nextInt();
-            consumeNewLine(scr);
-
-            System.out.println("What is the students score for exercise #5?");
-            sm.exercise_5_score = scr.nextInt();
-            consumeNewLine(scr);
-
-            updateDB(sm.createEnrollmentEntry(conn, courseId), conn);
+            if (updateDB(sm.createEnrollmentEntry(conn, courseId), conn)) {
+                System.out.println("Successfully added Student instruction to DB");
+            } else {
+                System.out.println("Failed to add Student instruction to DB");
+            }
             j++;
         }
     }
@@ -399,22 +364,13 @@ public class Course extends Option implements OptionProtocol {
         PreparedStatement psdc = null;
         boolean duplicate = false;
 
-        System.out.println("Enter course id:");
-        cm.course_id = scr.nextInt();
-        consumeNewLine(scr);
-        System.out.println("Enter course name:");
-        cm.course_name = scr.nextLine();
-        System.out.println("Enter course description:");
-        cm.course_description = scr.nextLine();
-        System.out.println("Enter course date: (YYYY-MM-DD)");
-        String _dateStr = scr.nextLine();
+        cm.course_id = promptCourseId(scr);
+        cm.course_name = scanForString(scr, "Enter course name:");
+        cm.course_description = scanForString(scr, "Enter course description:");
+        String _dateStr = scanForString(scr, "Enter course date: YYYY-MM-DD");
         cm.date = parseDate(_dateStr);
-        System.out.println("Enter course cost:");
-        cm.cost = scr.nextInt();
-        consumeNewLine(scr);
-        System.out.println("Enter course type: (dirt/street)");
-        cm.course_type = scr.nextLine();
-
+        cm.cost = scanForInt(scr, "Enter course cost:");
+        cm.course_type = scanForRangeType(scr);
 
         // Check for Duplicate Entry
         String lookupStmt = "SELECT * FROM course WHERE course_id = ?";
