@@ -105,6 +105,7 @@ public class Instructors {
             dob = new java.sql.Date(temp_date.getTime());  
         } catch (ParseException e) {
             System.out.println("Date was not in correct format");
+            System.out.println("Date not accepted - not in correct format.");
             e.printStackTrace();
         }
 
