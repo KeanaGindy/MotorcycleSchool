@@ -65,7 +65,8 @@ public class Option {
 
             // Print the header
             for (int i = 0; i < columnCount; i++) {
-                System.out.printf("%-" + columnWidths[i] + "s   ", columnNames[i]);
+                int width = columnWidths[i] == 0 ? 10 : columnWidths[i];
+                System.out.printf("%-" + width + "s   ", columnNames[i]);
             }
             System.out.println();
 
@@ -113,5 +114,62 @@ public class Option {
         scr.nextLine();
     }
 
+    
+    public int scanForInt(Scanner scr, String prompt) {
+        int maxAttempts = 3;
+        int intValue = 0;
+        int attempt = 0;
+
+        do {
+            attempt++;
+            System.out.println(prompt);
+
+            if (scr.hasNextInt()) {
+                intValue = scr.nextInt();
+                consumeNewLine(scr);
+                break;
+            } else {
+                System.out.println("Invalid input: please enter an Integer.");
+                consumeNewLine(scr);
+            }
+
+        } while (attempt < maxAttempts);
+
+        return intValue;
+    }
+
+    public String scanForString(Scanner scr, String prompt) {
+        System.out.println(prompt);
+        return scr.nextLine();
+    }
+
+    public String scanForRangeType(Scanner scanner) {
+        int maxAttempts = 3;
+        String inputString = "";
+        int attemptCount = 0;
+    
+        do {
+            attemptCount++;
+            System.out.println("Enter range type: (street/dirt)");
+    
+            if (scanner.hasNext()) {
+                inputString = scanner.next();
+                if (inputString.equals("street") || inputString.equals("dirt")) {
+                    break;
+                } else {
+                    System.out.println("Invalid input: please enter either 'street' or 'dirt'.");
+                    consumeNewLine(scanner);
+                }
+            } else {
+                System.out.println("Invalid input: please enter either 'street' or 'dirt'.");
+                consumeNewLine(scanner);
+            }
+    
+        } while (attemptCount < maxAttempts);
+    
+        return inputString;
+    }
+
 
 }
+
