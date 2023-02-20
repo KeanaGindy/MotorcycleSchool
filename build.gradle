@@ -4,7 +4,7 @@ sourceSets.main.java.srcDirs = ['src']
 mainClassName = "ser322.Main"
 
 dependencies {
-   implementation files ('lib/mysql-connector-java-5.1.45-bin.jar')
+   implementation files ('lib/mysql-connector-j-8.0.32.jar')
 }
 
 run {
