@@ -505,8 +505,10 @@ public class Bike {
         try {
             java.util.Date temp_date = formatter.parse(date_str);
             java.sql.Date date = new java.sql.Date(temp_date.getTime());
-            ps = conn.prepareStatement("SELECT vin, bike_type FROM bike WHERE vin NOT IN (SELECT vin FROM assigned_to WHERE course_id IN (SELECT course_id FROM course WHERE course.course_date = ?));");
+            ps = conn.prepareStatement("SELECT vin, bike_type FROM bike WHERE vin NOT IN (SELECT vin FROM assigned_to WHERE course_id IN (SELECT course_id FROM course WHERE course_date = ?)) AND vin NOT IN (SELECT vin FROM repair_bike WHERE repair_date <= ? AND problem_date >= ?);");
             ps.setDate(1, date);
+            ps.setDate(2, date);
+            ps.setDate(3, date);
             rs = ps.executeQuery();
             System.out.println("\n\nHere are a list of bikes available on " + date + ": \n------------------------------------------------");
             System.out.printf("%-20s %-20s\n", "vin", "bike_type");
