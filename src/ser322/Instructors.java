@@ -106,7 +106,6 @@ public class Instructors {
         } catch (ParseException e) {
             System.out.println("Date was not in correct format");
             System.out.println("Date not accepted - not in correct format.");
-            e.printStackTrace();
         }
 
         System.out.println("Please enter the instructor's address: ");
@@ -347,8 +346,8 @@ public class Instructors {
                 System.out.printf("%-20d",  rs.getInt("instructor_id"));
                 System.out.printf("%-20s",  rs.getString("instructor_name"));
                 System.out.printf("%-20s",  rs.getDate("dob"));
-                System.out.printf("%-20s",  rs.getString(4));
-                System.out.printf("%-20s",  rs.getString("phone"));
+                System.out.printf("%-23s",  rs.getString(4));
+                System.out.printf("%-28s",  rs.getString("phone"));
                 System.out.printf("%-20s",  rs.getBoolean("coach_dirt_bike"));
                 System.out.printf("%-20s",  rs.getBoolean("coach_street_bike"));
                 System.out.printf("%-20s",  rs.getBoolean("teach_street_bike"));
@@ -419,13 +418,13 @@ public class Instructors {
                 reportRs = ps.executeQuery();
 
                 // Display the results
-                System.out.printf("%-15s %-15s %-15s %-15s %-15s %-15s %-15s", "instructor_id", "instructor_name", "course_id", "course_name", "course_type","course_date","s.in_session");
+                System.out.printf("%-15s %-15s %-15s %-25s %-15s %-15s %-15s", "instructor_id", "instructor_name", "course_id", "course_name", "course_type","course_date","s.in_session");
                 System.out.println();
                 while (reportRs.next()) {
                     System.out.printf("%-16d",  reportRs.getInt("instructor_id"));
                     System.out.printf("%-16s",  reportRs.getString("instructor_name"));
                     System.out.printf("%-16d",  reportRs.getInt("course_id"));
-                    System.out.printf("%-16s",  reportRs.getString("course_name"));
+                    System.out.printf("%-27s",  reportRs.getString("course_name"));
                     System.out.printf("%-16s",  reportRs.getString("course_type"));
                     System.out.printf("%-16s",  reportRs.getDate("course_date"));
                     System.out.printf("%-16s",  reportRs.getString("s.in_session"));
@@ -480,7 +479,6 @@ public class Instructors {
             System.out.println("Date was not in correct format");
             e.printStackTrace();
         }
-        scr.nextLine(); // consume extra newline
 
         //check to make sure instructor exists
 	    try {
