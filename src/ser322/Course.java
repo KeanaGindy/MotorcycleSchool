@@ -10,12 +10,12 @@ import java.util.Scanner;
 public class Course extends Option implements OptionProtocol {
     boolean isEditing = false;
 
+
+    // Main Menu for Course Path
     public void openMenu(Connection conn, Scanner scr) {
         do {
             displayMenuOptions();
-
             userOpt = scr.nextLine();
-
             System.out.println("You selected option: " + userOpt);
             // validate user input
             switch (userOpt) {
@@ -41,30 +41,7 @@ public class Course extends Option implements OptionProtocol {
         } while (isDone == false);
     }
 
-    public void displayMenuOptions() {
-        System.out.println("Manage Courses");
-        System.out.println("\t1 - Create New Course");
-        System.out.println("\t2 - View Courses");
-        System.out.println("\t3 - Edit Course");
-        System.out.println("\t4 - Delete Course");
-        System.out.println("\t0 - Return to Main Menu");
-        System.out.println("Please select a valid menu option (0-4)");
-    }
-
-    public void displayEditOptions() {
-        System.out.println("Courses: Edit Options");
-        System.out.println("\t1 - Date");
-        System.out.println("\t2 - Payment Record");
-        System.out.println("\t3 - Written Test Score");
-        System.out.println("\t4 - Exercise 1 Score");
-        System.out.println("\t5 - Exercise 2 Score");
-        System.out.println("\t6 - Exercise 3 Score");
-        System.out.println("\t7 - Exercise 4 Score");
-        System.out.println("\t8 - Exercise 5 Score");
-        System.out.println("\t0 - Back to Courses Menu");
-        System.out.println("Please select a valid menu option (0-3)");
-    }
-
+    // Handle View Path triggered form Main Menu
     public void view(Connection conn, Scanner scr) {
         String queryStmt = "SELECT * from course";
         try {
@@ -76,14 +53,14 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Handle Edit Path triggered from Main Menu
     public void edit(Connection conn, Scanner scr) {
         isEditing = true;
 
         do {
-
             displayEditOptions();
             userOpt = scr.nextLine();
-            
+    
             switch (userOpt) {
                 case "1":
                     // date
@@ -128,11 +105,15 @@ public class Course extends Option implements OptionProtocol {
         } while (isEditing);
     }
 
+    // Handle Date Update Path
     private void handleDateUpdate(Connection conn, Scanner scr) {
+        // Prompt for Date Details
         PreparedStatement ps = UpdateType.date.getPreparedStatement(conn);
         int _courseId = promptCourseId(scr);
         String _dateStr = scanForString(scr, "Enter new date: YYYY-MM-DD");
         java.sql.Date date = parseDate(_dateStr);
+
+        // Attempt Update DB
         try {
             ps.setDate(1, date);
             ps.setInt(2, _courseId);
@@ -146,11 +127,15 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Handle Payment Update Path
     private void handlePaymentUpdate(Connection conn, Scanner scr) {
+        // Prompt for Payment Details
         PreparedStatement ps = UpdateType.paymentRecord.getPreparedStatement(conn);
         int _studentId = promptStudentId(scr);
         int _courseId = promptCourseId(scr);
         int _paymentComplete = scanForInt(scr, "Enter payment status: (1 == paid, 0 == unpaid)");
+
+        // Attempt to Update DB
         try {
             ps.setInt(1, _paymentComplete);
             ps.setInt(2, _studentId);
@@ -165,9 +150,11 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Update Score Path
     private void handleScoreUpdate(Connection conn, Scanner scr, int ex) {
         PreparedStatement ps = null;
 
+        // Determine which score entry to update (1-5)
         switch (ex) {
             case 1:
                 ps = UpdateType.exerciseScore1.getPreparedStatement(conn);
@@ -188,10 +175,12 @@ public class Course extends Option implements OptionProtocol {
                 ps = UpdateType.writtenScore.getPreparedStatement(conn);
         }
 
+        // Create new Score for Student
         int _studentId = promptStudentId(scr);
         int _courseId = promptCourseId(scr);
         int _newScore = promptNewScore(scr);
 
+        // Update DB
         try {
             ps.setInt(1, _newScore);
             ps.setInt(2, _studentId);
@@ -202,10 +191,11 @@ public class Course extends Option implements OptionProtocol {
                 System.out.println("Failed to update Course data in DB");
             }
         } catch (Exception e) {
-            // TODO: handle exception
-        }
+            System.out.println("Failed to update course in DB.");
+    }
     }
 
+    // Delete Path triggered from Main Menu
     public void delete(Connection conn, Scanner scr) {
         // Input Store Variables
         Integer _courseId = null;
@@ -226,17 +216,22 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Create Path triggered from Main Menu
     public void create(Connection conn, Scanner scr) {
         CourseModel cm = new CourseModel();
+        // Add Course Flow
         addCourse(conn, scr, cm);
-
         Integer _numStudents = null;
+
+        // Handle Street vs. Dirt Flows
         if (cm.course_type.toLowerCase().equals("street")) {
+            // Print Header
             System.out.println("\n##### " + "Creating new Street Course \n");
             _numStudents = scanForInt(scr, "Enter the number students you'd like to add to this course: (max 30)");
             addInstructors(conn, scr, cm.course_id, RangeType.street, _numStudents);
             addStudents(conn, scr, cm.course_id, _numStudents);
         } else if (cm.course_type.toLowerCase().equals("dirt")) {
+            // Print Header
             System.out.println("\n##### " + "Creating new Dirt Course \n");
             System.out.println();
             _numStudents = scanForInt(scr, "Enter the number students you'd like to add to this course: (max 15)");
@@ -245,20 +240,24 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Prompt for Student ID
     private int promptStudentId(Scanner scr) {
         return scanForInt(scr, "Enter student ID:");
     }
 
+    // Prompt for Course ID
     private int promptCourseId(Scanner scr) {
         return scanForInt(scr, "Enter course ID:");
     }
 
+    // Prompt for New Score
     private int promptNewScore(Scanner scr) {
         return scanForInt(scr, "Enter new score:");
     }
 
     // HELPER METHODS
 
+    // Add Instructors Flow for instructs Insertion
     public void addInstructors(Connection conn, Scanner scr, int courseId, RangeType rt, int numStudents) {
         switch (rt) {
             case dirt:
@@ -270,11 +269,14 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Handle Dirt Flow for Course Creation
     public void handleDirt(Connection conn, Scanner scr, int numStudents, int courseId) {
+        // Capacity Check
         if (numStudents > 15) {
             numStudents = 15;
             System.out.println("You entered a value greater than 15. Students will be capped at 15.");
         }
+        // Add 3 Instructors to Course
         for (int i = 0; i < 3; i++) {
             InstructorModel im = new InstructorModel();
             im.course_id = courseId;
@@ -293,7 +295,10 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+
+    // Handle Street Flow for Course Creation
     public void handleStreet(Connection conn, Scanner scr, int numStudents, int courseId) {
+        // Determine Course Session
         String session = "AM";
         if (numStudents > 15) {
             session = "PM";
@@ -302,8 +307,11 @@ public class Course extends Option implements OptionProtocol {
                 numStudents = 30;
             }
         }
+
+        // Add Instructors to Course
         for (int i = 0; i < 4; i++) {
             InstructorModel im = new InstructorModel();
+            // Teacher Flow
             if (i == 0) {
                 im.course_id = courseId;
                 im.instructor_id = scanForInt(scr, "Enter ID for street teacher: ");
@@ -318,6 +326,7 @@ public class Course extends Option implements OptionProtocol {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            // Instructor Flow
             } else {
                 im.course_id = courseId;
                 im.instructor_id = scanForInt(scr, "Enter id for street coach #" + i);
@@ -336,9 +345,12 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Add Students Flow for Enrolled In Insertion
     public void addStudents(Connection conn, Scanner scr, int courseId, int numStudents) {
         boolean addingStudents = true;
         int j = 0;
+
+        // Add j number of students, as specified by user input.
         while (addingStudents && j < numStudents) {
             StudentModel sm = new StudentModel();
             sm.student_id = scanForInt(scr, "Enter ID for Student #" + (j + 1));
@@ -359,11 +371,13 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Add Course Flow for Course Creation
     public void addCourse(Connection conn, Scanner scr, CourseModel cm) {
         PreparedStatement ps = null;
         PreparedStatement psdc = null;
         boolean duplicate = false;
 
+        // Request input for Course Model creation
         cm.course_id = promptCourseId(scr);
         cm.course_name = scanForString(scr, "Enter course name:");
         cm.course_description = scanForString(scr, "Enter course description:");
@@ -420,6 +434,7 @@ public class Course extends Option implements OptionProtocol {
 
     // MODELS
 
+    // Update Type Model
     enum UpdateType {
         date("UPDATE course SET course_date = ? WHERE course_id = ?;"),
         paymentRecord("UPDATE enrolled_in SET is_payment_completed = ? WHERE student_id = ? AND course_id = ?;"),
@@ -432,6 +447,7 @@ public class Course extends Option implements OptionProtocol {
 
         private final String query;
 
+        // Update Type Constructor
         private UpdateType(String query) {
             this.query = query;
         }
@@ -440,6 +456,7 @@ public class Course extends Option implements OptionProtocol {
             return this.query;
         }
 
+        // Prepared Statement Constructor for Course
         public PreparedStatement getPreparedStatement(Connection conn) {
             PreparedStatement _ps = null;
             try {
@@ -451,12 +468,14 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Instructor Model for Query Creations
     class InstructorModel {
         int instructor_id;
         int course_id;
         String in_session;
         String instructor_role;
 
+        // instructs Query Insertion Constructor
         public PreparedStatement createInstructsEntry(Connection conn, int course_id) {
             PreparedStatement ps = null;
             String query = "INSERT INTO instructs VALUES (?, ?, ?, ?);";
@@ -473,11 +492,13 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Range Type Model for Flow Control
     enum RangeType {
         dirt,
         street;
     }
 
+    // Student Model for Query Creations
     class StudentModel {
         int student_id;
         int is_payment_completed;
@@ -488,6 +509,7 @@ public class Course extends Option implements OptionProtocol {
         int exercise_4_score;
         int exercise_5_score;
 
+        // enrolled_in Query Insertion Constructor
         public PreparedStatement createEnrollmentEntry(Connection conn, int course_id) {
             PreparedStatement ps = null;
             String query = "INSERT INTO enrolled_in VALUES (?,?,?,?,?,?,?,?,?);";
@@ -509,6 +531,7 @@ public class Course extends Option implements OptionProtocol {
         }
     }
 
+    // Course Model for Query Creations
     class CourseModel {
         int course_id;
         String course_name;
@@ -517,6 +540,7 @@ public class Course extends Option implements OptionProtocol {
         int cost;
         String course_type;
 
+        // Course Model PreparedStatement Constructor
         public PreparedStatement createEnrollmentEntry(Connection conn) {
             PreparedStatement ps = null;
             String query = "INSERT INTO course VALUES (?, ?, ?, ?, ?, ?);";
@@ -533,5 +557,33 @@ public class Course extends Option implements OptionProtocol {
             }
             return ps;
         }
+    }
+
+    // DISPLAY OPTIONS
+
+    // Display Main Menu
+    public void displayMenuOptions() {
+        System.out.println("Manage Courses");
+        System.out.println("\t1 - Create New Course");
+        System.out.println("\t2 - View Courses");
+        System.out.println("\t3 - Edit Course");
+        System.out.println("\t4 - Delete Course");
+        System.out.println("\t0 - Return to Main Menu");
+        System.out.println("Please select a valid menu option (0-4)");
+    }
+
+    // Display Edit Menu
+    public void displayEditOptions() {
+        System.out.println("Courses: Edit Options");
+        System.out.println("\t1 - Date");
+        System.out.println("\t2 - Payment Record");
+        System.out.println("\t3 - Written Test Score");
+        System.out.println("\t4 - Exercise 1 Score");
+        System.out.println("\t5 - Exercise 2 Score");
+        System.out.println("\t6 - Exercise 3 Score");
+        System.out.println("\t7 - Exercise 4 Score");
+        System.out.println("\t8 - Exercise 5 Score");
+        System.out.println("\t0 - Back to Courses Menu");
+        System.out.println("Please select a valid menu option (0-3)");
     }
 }
