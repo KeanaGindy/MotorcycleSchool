@@ -93,9 +93,11 @@ public class Students {
         }
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
+        System.out.println("Student id: " + student_id);
 
         System.out.println("Please enter the student's full name: ");
         student_name = scr.nextLine();
+        System.out.println("Student's name: " + student_name);
 
         //TODO add error message for incorrect date format
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -105,17 +107,20 @@ public class Students {
         try {
             java.util.Date temp_date = formatter.parse(dob_str);
             dob = new java.sql.Date(temp_date.getTime());  
+            System.out.println("Student's birthdate: " + dob.toString());
         } catch (ParseException e) {
-            System.out.println("Date was not in correct format");
-            e.printStackTrace();
+            System.out.println("Date not accepted - not in correct format.");
+            //e.printStackTrace();
         }
 
         System.out.println("Please enter the student's address: ");
         address = scr.nextLine();
+        System.out.println("Student's address: " + address);
 
         //TODO add error checking for number of digits in phone number
         System.out.println("Please enter the student's phone number (no dashes/no spaces): ");
         phone = scr.nextLine();
+        System.out.println("Student's phone: " + phone);
 
         //check to make sure student doesn't already exist
         //if doesn't exist write to db
@@ -153,6 +158,7 @@ public class Students {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("Error with SQL!");
         } finally {
             try {
                 if (ps != null) 
@@ -186,6 +192,7 @@ public class Students {
         }
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
+        System.out.println("You entered student id: " + student_id);
 
         //check to make sure student exists
 	    try {
@@ -199,7 +206,7 @@ public class Students {
             }           
             if (rs == null || i == 0) {
                 //student does not exist
-                System.out.println("Student does not exist! Returning to menu...");
+                System.out.println("Student with id " +  student_id + " does not exist! Returning to menu...");
                 studentExists = false;
                 psCheckDupe.clearParameters();
                 psCheckDupe.close();
@@ -208,7 +215,7 @@ public class Students {
                 ps = conn.prepareStatement("DELETE FROM student WHERE student_id = ?;");
                 ps.setInt(1, student_id);
                 if (ps.executeUpdate() > 0) {
-                    System.out.println("Removed student OK");
+                    System.out.println("Removed student with id  " +  student_id);
                 }
                 ps.clearParameters();
                 ps.close();
@@ -282,7 +289,6 @@ public class Students {
         ResultSet rs = null;
         System.out.println("Displaying all students: ");
     
-        //check to make sure student exists
 	    try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM student;");
@@ -337,6 +343,7 @@ public class Students {
         }
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
+        System.out.println("You entered student id: " + student_id);
 
         //check to make sure student exists
 	    try {
@@ -350,7 +357,7 @@ public class Students {
             }           
             if (rs == null || i == 0) {
                 //student does not exist
-                System.out.println("Student does not exist! Returning to menu...");
+                System.out.println("Student with id " +  student_id + " does not exist! Returning to menu...");
                 studentExists = false;
                 psCheckDupe.clearParameters();
                 psCheckDupe.close();
@@ -472,6 +479,7 @@ public class Students {
         }
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
+        System.out.println("You entered student id: " + student_id);
 
         //check to make sure student exists
 	    try {
@@ -485,7 +493,7 @@ public class Students {
             }           
             if (rs == null || i == 0) {
                 //student does not exist
-                System.out.println("Student does not exist! Returning to menu...");
+                System.out.println("Student with id " +  student_id + " does not exist! Returning to menu...");
                 studentExists = false;
                 psCheckDupe.clearParameters();
                 psCheckDupe.close();
@@ -549,6 +557,7 @@ public class Students {
         }
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
+        System.out.println("You entered student id: " + student_id);
 
         //check to make sure student exists
 	    try {
@@ -562,7 +571,7 @@ public class Students {
             }           
             if (rs == null || i == 0) {
                 //student does not exist
-                System.out.println("Student does not exist! Returning to menu...");
+                System.out.println("Student with id " +  student_id + " does not exist! Returning to menu...");
                 studentExists = false;
                 psCheckDupe.clearParameters();
                 psCheckDupe.close();
@@ -626,6 +635,7 @@ public class Students {
         }
         student_id = scr.nextInt();
         scr.nextLine(); // consume extra newline
+        System.out.println("You entered student id: " + student_id);
 
         //check to make sure student exists
 	    try {
@@ -639,7 +649,7 @@ public class Students {
             }           
             if (rs == null || i == 0) {
                 //student does not exist
-                System.out.println("Student does not exist! Returning to menu...");
+                System.out.println("Student with id " +  student_id + " does not exist! Returning to menu...");
                 studentExists = false;
                 psCheckDupe.clearParameters();
                 psCheckDupe.close();
