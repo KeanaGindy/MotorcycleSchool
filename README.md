@@ -1,8 +1,8 @@
 # SER322 Deliverable 4 | Team 3
-=================================================================================================
+================================================================
 ## VIDEO LINK: https://drive.google.com/file/d/15pCSP7LFpG_0tonsc8kZGmeeeThE9qnE/view?usp=sharing
 
-=================================================================================================
+================================================================
 ## Overview
 There are two options to build and run the application: 1) javac and java 2) gradle.
 
