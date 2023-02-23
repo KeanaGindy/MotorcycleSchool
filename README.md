@@ -11,7 +11,6 @@ Work from prior deliverables is located in the documentation folder of this proj
 ### Option 1: Building and Running the Application using javac/java
 
 - Step 1) From the root directory of the project run: `javac -d ./classes/ ./src/ser322/Main.java <add other java files>`
-javac -d ./classes/ ./src/ser322/Main.java ./src/ser322/Students.java
 - Step 2) Before running these commands, you must import the `create_school_db.sql` AND  `insert_sample_data.sql`file into your database.
 - Step 3) `java ser322.Main <url> <user> <pwd> <driver>` (should also include `-cp` with your driver and classpath as shown in example below)
 
