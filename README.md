@@ -1,7 +1,12 @@
 # SER322 Deliverable 4 | Team 3
+=================================================================================================
+## VIDEO LINK: https://drive.google.com/file/d/15pCSP7LFpG_0tonsc8kZGmeeeThE9qnE/view?usp=sharing
 
+=================================================================================================
 ## Overview
 There are two options to build and run the application: 1) javac and java 2) gradle.
+
+Work from prior deliverables is located in the documentation folder of this project.
 
 ### Option 1: Building and Running the Application using javac/java
 
@@ -20,7 +25,7 @@ Notes:
 - name of the db is `motercycleschool`
 
 ### Option 2: Building and Running the Application using Gradle
-- Step 0) Ensure you can you use gradle wrapper by running: `gradle wrapper --gradle version 7.0`
+- Step 0) You may need to ensure you can you use gradle wrapper by running if ./gradlew command is not recognized: `gradle wrapper --gradle version 7.0`
 - Step 1) `./gradlew clean`
 - Step 2) `./gradlew build`
 - Step 3) Before running these commands, you must import the `create_school_db.sql` AND  `insert_sample_data.sql`file into your database.
