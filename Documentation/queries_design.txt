@@ -1160,19 +1160,15 @@ We will display bike's vin and bike type with the query:
 Parameter 1: course_date DATE NOT NULL
 
 Example with hardcorded values:
-SELECT vin, bike_type FROM bike
-WHERE vin NOT IN (
-SELECT vin FROM assigned_to 
-WHERE course_id IN (
-SELECT course_id FROM course WHERE course.course_date = '2023-01-31'));
+SELECT vin, bike_type FROM bike WHERE vin NOT IN (SELECT vin FROM assigned_to WHERE course_id IN (SELECT course_id 
+FROM course WHERE course_date = '2023-01-29')) AND vin NOT IN (SELECT vin FROM repair_bike WHERE repair_date <= '2023-01-29' 
+AND problem_date >= '2023-01-29');
 
 */
 
-SELECT vin, bike_type FROM bike
-WHERE vin NOT IN (
-SELECT vin FROM assigned_to 
-WHERE course_id IN (
-SELECT course_id FROM course WHERE course.course_date = ?));
+SELECT vin, bike_type FROM bike WHERE vin NOT IN (SELECT vin FROM assigned_to WHERE course_id IN (SELECT course_id 
+FROM course WHERE course_date = ?)) AND vin NOT IN (SELECT vin FROM repair_bike WHERE repair_date <= ? 
+AND problem_date >= ?);
 
 /* =====================================================================*/
 /*
