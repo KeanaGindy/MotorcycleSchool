@@ -98,7 +98,7 @@ public class Course extends Option implements OptionProtocol {
                     isEditing = false;
                     break;
                 default:
-                    invalidInput("4");
+                    invalidInput("8");
                     break;
             }
 
@@ -110,8 +110,7 @@ public class Course extends Option implements OptionProtocol {
         // Prompt for Date Details
         PreparedStatement ps = UpdateType.date.getPreparedStatement(conn);
         int _courseId = promptCourseId(scr);
-        String _dateStr = scanForString(scr, "Enter new date: YYYY-MM-DD");
-        java.sql.Date date = parseDate(_dateStr);
+        java.sql.Date date = scanForDate(scr);
 
         // Attempt Update DB
         try {
@@ -381,8 +380,7 @@ public class Course extends Option implements OptionProtocol {
         cm.course_id = promptCourseId(scr);
         cm.course_name = scanForString(scr, "Enter course name:");
         cm.course_description = scanForString(scr, "Enter course description:");
-        String _dateStr = scanForString(scr, "Enter course date: YYYY-MM-DD");
-        cm.date = parseDate(_dateStr);
+        cm.date = scanForDate(scr);
         cm.cost = scanForInt(scr, "Enter course cost:");
         cm.course_type = scanForRangeType(scr);
 

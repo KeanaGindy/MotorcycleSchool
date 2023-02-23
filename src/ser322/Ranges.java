@@ -110,7 +110,7 @@ public class Ranges extends Option implements OptionProtocol {
         // Parse Date String
         if (vt != ViewType.all) {
             String _dateStr = scanForString(scr, "Enter in a date: YYYY-MM-DD");
-            _date = parseDate(_dateStr);
+            _date = scanForDate(scr);
         }
 
         // Determine which view selection to proceed.
