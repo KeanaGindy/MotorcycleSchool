@@ -292,6 +292,32 @@ public class Course extends Option implements OptionProtocol {
                 e.printStackTrace();
             }
         }
+        assignBike(conn, scr, courseId, RangeType.dirt);
+    }
+
+    public void assignBike(Connection conn, Scanner scr, int courseId, RangeType rt) {
+        int numBikes = scanForInt(scr, "How many bikes would you like to add to this course?");
+        for(int i = 0; i < numBikes; i++) {
+            AssignBike ab = new AssignBike();
+            System.out.println("Available Bikes:");
+            try {
+                Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                ResultSet rs = stmt.executeQuery(rt.getVinQuery());
+                viewDB(rs);
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                System.out.println("Unable to view bike vins.");
+            }
+            ab.course_id = courseId;
+            ab.vin = scanForString(scr, "\nAdd bike to course. Enter VIN:");
+            try {
+                updateDB(ab.createAssignedToEntry(conn), conn);
+            } catch (Exception e) {
+                System.out.println("Unable to add bike to course.");
+            }
+        }
+        
+
     }
 
 
@@ -342,6 +368,7 @@ public class Course extends Option implements OptionProtocol {
                 }
             }
         }
+        assignBike(conn, scr, courseId, RangeType.street);
     }
 
     // Add Students Flow for Enrolled In Insertion
@@ -494,6 +521,16 @@ public class Course extends Option implements OptionProtocol {
     enum RangeType {
         dirt,
         street;
+
+        public String getVinQuery() {
+            switch(this) {
+                case dirt:
+                    return "SELECT * FROM bike WHERE bike_type = 'dirt';";
+                case street:
+                    return "SELECT * FROM bike WHERE bike_type = 'street';";
+            }
+            return null;
+        }
     }
 
     // Student Model for Query Creations
@@ -524,6 +561,26 @@ public class Course extends Option implements OptionProtocol {
                 ps.setInt(9, this.exercise_5_score);
             } catch (SQLException e) {
                 e.printStackTrace();
+            }
+            return ps;
+        }
+    }
+
+    class AssignBike {
+        int course_id;
+        String vin;
+
+        public PreparedStatement createAssignedToEntry(Connection conn) {
+            PreparedStatement ps = null;
+            String query = "INSERT INTO assigned_to VALUES (?, ?);";
+
+            try {
+                ps = conn.prepareStatement(query);
+                ps.setInt(1, course_id);
+                ps.setString(2, vin);
+
+            } catch (Exception e) {
+                System.out.println("Unable to assign bike to course.");
             }
             return ps;
         }

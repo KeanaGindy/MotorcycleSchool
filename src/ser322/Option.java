@@ -124,7 +124,7 @@ public class Option {
             System.out.println("Enter a date: (DD-MM-YYYY)");
             String input = scanner.nextLine();
             if (datePattern.matcher(input).matches()) {
-                date = parseDate(input);
+                return(parseDate(input));
             } else {
                 System.out.println("Invalid date format. Please enter date in DD-MM-YYYY format.");
                 numTries++;
