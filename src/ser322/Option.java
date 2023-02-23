@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import javax.naming.spi.DirStateFactory.Result;
 
@@ -65,7 +66,8 @@ public class Option {
 
             // Print the header
             for (int i = 0; i < columnCount; i++) {
-                System.out.printf("%-" + columnWidths[i] + "s   ", columnNames[i]);
+                int width = columnWidths[i] == 0 ? 10 : columnWidths[i];
+                System.out.printf("%-" + width + "s   ", columnNames[i]);
             }
             System.out.println();
 
@@ -113,5 +115,79 @@ public class Option {
         scr.nextLine();
     }
 
+    public java.sql.Date scanForDate(Scanner scanner) {
+        Pattern datePattern = Pattern.compile("\\d{2}-\\d{2}-\\d{4}");
+        java.sql.Date date = null;
+
+        int numTries = 0;
+        while (numTries < 3) {
+            System.out.println("Enter a date: (DD-MM-YYYY)");
+            String input = scanner.nextLine();
+            if (datePattern.matcher(input).matches()) {
+                return(parseDate(input));
+            } else {
+                System.out.println("Invalid date format. Please enter date in DD-MM-YYYY format.");
+                numTries++;
+            }
+        }
+        return parseDate("01-01-2000");
+    }
+    
+    public int scanForInt(Scanner scr, String prompt) {
+        int maxAttempts = 3;
+        int intValue = 0;
+        int attempt = 0;
+
+        do {
+            attempt++;
+            System.out.println(prompt);
+
+            if (scr.hasNextInt()) {
+                intValue = scr.nextInt();
+                consumeNewLine(scr);
+                break;
+            } else {
+                System.out.println("Invalid input: please enter an Integer.");
+                consumeNewLine(scr);
+            }
+
+        } while (attempt < maxAttempts);
+
+        return intValue;
+    }
+
+    public String scanForString(Scanner scr, String prompt) {
+        System.out.println(prompt);
+        return scr.nextLine();
+    }
+
+    public String scanForRangeType(Scanner scanner) {
+        int maxAttempts = 3;
+        String inputString = "";
+        int attemptCount = 0;
+    
+        do {
+            attemptCount++;
+            System.out.println("Enter range type: (street/dirt)");
+    
+            if (scanner.hasNext()) {
+                inputString = scanner.next();
+                if (inputString.equals("street") || inputString.equals("dirt")) {
+                    break;
+                } else {
+                    System.out.println("Invalid input: please enter either 'street' or 'dirt'.");
+                    consumeNewLine(scanner);
+                }
+            } else {
+                System.out.println("Invalid input: please enter either 'street' or 'dirt'.");
+                consumeNewLine(scanner);
+            }
+    
+        } while (attemptCount < maxAttempts);
+    
+        return inputString;
+    }
+
 
 }
+
